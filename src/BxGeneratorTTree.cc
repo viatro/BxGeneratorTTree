@@ -32,21 +32,52 @@
 #include "BxLogger.hh"
 #include "BxManager.hh"
 
-BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree") {
+BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
+    fTreeChain(0),
+    fTreeNumber(-1),
+    fCurrentEntry(0),
+    fFirstEntry(0),
+    fIsInitialized(false),
+    fParticleCounter(0),
+    fVarUnit_Ekin(MeV),
+    fVarUnit_Momentum(MeV),
+    fVarUnit_Coords(m),
+    fVarTTF_Condition       (0),
+    fVarTTF_EventId         (0),
+    fVarTTF_NParticles      (0),
+    fVarTTF_PileUp          (0),
+    fVarTTF_Pdg             (0),
+    fVarTTF_Ekin            (0),
+    fVarTTF_Momentum[0]     (0),
+    fVarTTF_Momentum[1]     (0),
+    fVarTTF_Momentum[2]     (0),
+    fVarTTF_Coords[0]       (0),
+    fVarTTF_Coords[1]       (0),
+    fVarTTF_Coords[2]       (0),
+    fVarTTF_Polarization[0] (0),
+    fVarTTF_Polarization[1] (0),
+    fVarTTF_Polarization[2] (0),
+    fTTFmanager(0),
+    fVarIsSet_EventId(false),
+    fVarIsSet_Polarization(false),
+    fParticleGun(0),
+    fParticleTable(0),
+    fMessenger(0)
+    {
 
     fTreeChain = new TChain();
 
-    fTreeNumber = -1;
+    //fTreeNumber = -1;
     
-    fCurrentEntry = 0;
-    fFirstEntry = 0;
-    fIsInitialized = false;
+    //fCurrentEntry = 0;
+    //fFirstEntry = 0;
+    //fIsInitialized = false;
     
-    fParticleCounter = 0;
+    //fParticleCounter = 0;
     
-    fVarUnit_Ekin     = MeV;
-    fVarUnit_Momentum = MeV;
-    fVarUnit_Coords   = m;
+    //fVarUnit_Ekin     = MeV;
+    //fVarUnit_Momentum = MeV;
+    //fVarUnit_Coords   = m;
     
     fVarTTF_Condition       = new TTreeFormula("tf", "1" , 0);
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
@@ -66,8 +97,8 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree") {
 
     fTTFmanager = new TTreeFormulaManager();
 
-    fVarIsSet_EventId      = false;
-    fVarIsSet_Polarization = false;
+    //fVarIsSet_EventId      = false;
+    //fVarIsSet_Polarization = false;
 
     fParticleGun = new G4ParticleGun();
 
