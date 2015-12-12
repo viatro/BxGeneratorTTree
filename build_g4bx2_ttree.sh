@@ -6,7 +6,7 @@ rsync -hhruP --exclude '.git' --exclude '.gitignore' --exclude 'README.md' ${BXU
 
 cd ${offline_dir}/bxmc/g4bx2/src
 sed -i '0,/#include /s//#include "BxGeneratorTTree.hh"\n&/' ./BxPrimaryGeneratorActionMessenger.cc
-sed -i '/fSelectCmd->SetCandidates/ i\candidates += " Test";' ./BxPrimaryGeneratorActionMessenger.cc
+sed -i '/fSelectCmd->SetCandidates/ i\candidates += " TTree";' ./BxPrimaryGeneratorActionMessenger.cc
 sed -i '0,/(newValue ==/s// (newValue == "TTree") {\
     BxOutputVertex::Get()->SetGenerator(50);\
     fGeneratorPrimary->SetBxGenerator(new BxGeneratorTTree);\
