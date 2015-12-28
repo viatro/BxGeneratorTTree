@@ -62,7 +62,7 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     
     fVarSplitCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/split", this);
     fVarSplitCmd->SetGuidance("");
-    fVarSplitCmd->SetGuidance("Default:    1");
+    fVarSplitCmd->SetGuidance("Default:    0");
     
     fVarPdgCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/pdg", this);
     fVarPdgCmd->SetGuidance("PDG code of particle");

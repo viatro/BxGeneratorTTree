@@ -82,7 +82,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_Condition       = new TTreeFormula("tf", "1" , 0);
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
     fVarTTF_NParticles      = new TTreeFormula("tf", "1" , 0);
-    fVarTTF_Split           = new TTreeFormula("tf", "1" , 0);
+    fVarTTF_Split           = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Pdg             = new TTreeFormula("tf", "22", 0);
     fVarTTF_Ekin            = new TTreeFormula("tf", "1" , 0);
     fVarTTF_Momentum[0]     = new TTreeFormula("tf", "0" , 0);
