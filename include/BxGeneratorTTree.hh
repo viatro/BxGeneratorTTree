@@ -62,7 +62,7 @@ public:
     inline void SetVarStringCondition    (const G4String& a) {fVarString_Condition    = a;}
     inline void SetVarStringEventId      (const G4String& a) {fVarString_EventId      = a;}
     inline void SetVarStringNParticles   (const G4String& a) {fVarString_NParticles   = a;}
-    inline void SetVarStringPileUp       (const G4String& a) {fVarString_PileUp       = a;}
+    inline void SetVarStringSplit        (const G4String& a) {fVarString_Split        = a;}
     inline void SetVarStringPdg          (const G4String& a) {fVarString_Pdg          = a;}
     inline void SetVarStringEkin         (const G4String& a) {fVarString_Ekin         = a;}
     inline void SetVarStringMomentum     (const G4String& a) {fVarString_Momentum     = a;}
@@ -72,7 +72,7 @@ public:
     inline G4String GetVarStringCondition    () const {return fVarString_Condition   ;}
     inline G4String GetVarStringEventId      () const {return fVarString_EventId     ;}
     inline G4String GetVarStringNParticles   () const {return fVarString_NParticles  ;}
-    inline G4String GetVarStringPileUp       () const {return fVarString_PileUp      ;}
+    inline G4String GetVarStringSplit        () const {return fVarString_Split       ;}
     inline G4String GetVarStringPdg          () const {return fVarString_Pdg         ;}
     inline G4String GetVarStringEkin         () const {return fVarString_Ekin        ;}
     inline G4String GetVarStringMomentum     () const {return fVarString_Momentum    ;}
@@ -94,7 +94,7 @@ private:
     G4String    fVarString_Condition;
     G4String    fVarString_EventId;
     G4String    fVarString_NParticles;
-    G4String    fVarString_PileUp;
+    G4String    fVarString_Split;
     G4String    fVarString_Pdg;
     G4String    fVarString_Ekin;
     G4String    fVarString_Momentum;
@@ -111,7 +111,7 @@ private:
     TTreeFormula* fVarTTF_Condition;       ///< 
     TTreeFormula* fVarTTF_EventId;         ///< sequence number of the event (the event number)
     TTreeFormula* fVarTTF_NParticles;      ///< number of particles
-    TTreeFormula* fVarTTF_PileUp;          ///< 
+    TTreeFormula* fVarTTF_Split;           ///< 
     TTreeFormula* fVarTTF_Pdg;             ///< PDG code of particle
     TTreeFormula* fVarTTF_Ekin;            ///< particle kinetic energy
     TTreeFormula* fVarTTF_Momentum[3];     ///< particle momentum

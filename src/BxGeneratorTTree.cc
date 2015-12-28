@@ -45,7 +45,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_Condition       (0),
     fVarTTF_EventId         (0),
     fVarTTF_NParticles      (0),
-    fVarTTF_PileUp          (0),
+    fVarTTF_Split           (0),
     fVarTTF_Pdg             (0),
     fVarTTF_Ekin            (0),
     fVarTTF_Momentum[0]     (0),
@@ -82,7 +82,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_Condition       = new TTreeFormula("tf", "1" , 0);
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
     fVarTTF_NParticles      = new TTreeFormula("tf", "1" , 0);
-    fVarTTF_PileUp          = new TTreeFormula("tf", "0" , 0);
+    fVarTTF_Split           = new TTreeFormula("tf", "1" , 0);
     fVarTTF_Pdg             = new TTreeFormula("tf", "22", 0);
     fVarTTF_Ekin            = new TTreeFormula("tf", "1" , 0);
     fVarTTF_Momentum[0]     = new TTreeFormula("tf", "0" , 0);
@@ -116,7 +116,7 @@ BxGeneratorTTree::~BxGeneratorTTree() {
     delete    fVarTTF_Condition    ;
     delete    fVarTTF_EventId      ;
     delete    fVarTTF_NParticles   ;
-    delete    fVarTTF_PileUp       ;
+    delete    fVarTTF_Split       ;
     delete    fVarTTF_Pdg          ;
     delete    fVarTTF_Ekin         ;
     delete[]  fVarTTF_Momentum     ;
@@ -202,17 +202,17 @@ void BxGeneratorTTree::Initialize() {
         fVarTTF_NParticles->Compile();
     }
     
-    if ( ! fVarString_PileUp.isNull() ) {
-        tstring = fVarString_PileUp.data();
-        fVarTTF_PileUp->SetTitle(tstring.Data());
+    if ( ! fVarString_Split.isNull() ) {
+        tstring = fVarString_Split.data();
+        fVarTTF_Split->SetTitle(tstring.Data());
         if ( ! tstring.IsDigit() ) {
-            fVarTTF_PileUp->SetTree(fTreeChain);
-            if ( fVarTTF_PileUp->GetMultiplicity() != 0 ) {
-                BxLog(error) << "\"Pile-Up\" variable has wrong multiplicity!" << endlog;
+            fVarTTF_Split->SetTree(fTreeChain);
+            if ( fVarTTF_Split->GetMultiplicity() != 0 ) {
+                BxLog(error) << "\"Split\" variable has wrong multiplicity!" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;
             }
         }
-        fVarTTF_PileUp->Compile();
+        fVarTTF_Split->Compile();
     }
 
     if ( ! fVarString_Pdg.isNull() ) {
@@ -360,8 +360,8 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
     event->SetEventID(fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry);
     
-    for ( fParticleCounter = fVarTTF_PileUp->EvalInstance64(0) ? 0 : fParticleCounter;
-          fParticleCounter < fVarTTF_PileUp->EvalInstance64(0) ? fVarTTF_NParticles->EvalInstance64(0) : fParticleCounter + 1;
+    for ( fParticleCounter = fVarTTF_Split->EvalInstance64(0) ? fParticleCounter : 0;
+          fParticleCounter < fVarTTF_Split->EvalInstance64(0) ? fParticleCounter + 1 : fVarTTF_NParticles->EvalInstance64(0);
           ++fParticleCounter ) {
         
         if ( ! fVarTTF_Condition->EvalInstance64(0) )  continue;

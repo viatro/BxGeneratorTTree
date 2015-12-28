@@ -60,9 +60,9 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     fVarNParticlesCmd->SetGuidance("Number of particles per Tree entry");
     fVarNParticlesCmd->SetGuidance("Default:    1");
     
-    fVarNParticlesCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/pileup", this);
-    fVarNParticlesCmd->SetGuidance("");
-    fVarNParticlesCmd->SetGuidance("Default:    0");
+    fVarSplitCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/split", this);
+    fVarSplitCmd->SetGuidance("");
+    fVarSplitCmd->SetGuidance("Default:    1");
     
     fVarPdgCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/pdg", this);
     fVarPdgCmd->SetGuidance("PDG code of particle");
@@ -97,7 +97,7 @@ BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
     delete fVarDirectoryCmd;
     delete fVarEventIdCmd;
     delete fVarNParticlesCmd;
-    delete fVarPileUpCmd;
+    delete fVarSplitCmd;
     delete fVarPdgCmd;
     delete fVarEkinCmd;
     delete fVarMomentumCmd;
@@ -106,7 +106,7 @@ BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
 }
 
 
-void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue) { 
+void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue) {
     if (cmd == fInputFileNameCmd) {
         generator->AddInputFileName(newValue);
         BxLog(routine) << "Added input ROOT file \"" << newValue << "\"" << endlog;
@@ -125,9 +125,9 @@ void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
     } else if (cmd == fVarNParticlesCmd) {
         generator->SetVarStringNParticles(newValue);
         BxLog(routine) << "Number of particles UI-Cmd is \"" << newValue << "\"" << endlog;
-    } else if (cmd == fVarPileUpCmd) {
-        generator->SetVarStringPileUp(newValue);
-        BxLog(routine) << "PileUp UI-Cmd is \"" << newValue << "\"" << endlog;
+    } else if (cmd == fVarSplitCmd) {
+        generator->SetVarStringSplit(newValue);
+        BxLog(routine) << "Split UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarPdgCmd) {
         generator->SetVarStringPdg(newValue);
         BxLog(routine) << "PDG UI-Cmd is \"" << newValue << "\"" << endlog;
