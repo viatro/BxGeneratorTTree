@@ -59,8 +59,9 @@ public:
     /// Get the number of entries to be processed.
     inline G4int GetNEntries() const {return fNEntries;}
     
-    inline void SetVarStringCondition    (const G4String& a) {fVarString_Condition    = a;}
     inline void SetVarStringEventId      (const G4String& a) {fVarString_EventId      = a;}
+    inline void SetVarStringEventSkip    (const G4String& a) {fVarString_EventSkip    = a;}
+    inline void SetVarStringParticleSkip (const G4String& a) {fVarString_ParticleSkip = a;}
     inline void SetVarStringNParticles   (const G4String& a) {fVarString_NParticles   = a;}
     inline void SetVarStringSplit        (const G4String& a) {fVarString_Split        = a;}
     inline void SetVarStringPdg          (const G4String& a) {fVarString_Pdg          = a;}
@@ -69,8 +70,9 @@ public:
     inline void SetVarStringCoords       (const G4String& a) {fVarString_Coords       = a;}
     inline void SetVarStringPolarization (const G4String& a) {fVarString_Polarization = a;}
     
-    inline G4String GetVarStringCondition    () const {return fVarString_Condition   ;}
     inline G4String GetVarStringEventId      () const {return fVarString_EventId     ;}
+    inline G4String GetVarStringEventSkip    () const {return fVarString_EventSkip   ;}
+    inline G4String GetVarStringParticleSkip () const {return fVarString_ParticleSkip;}
     inline G4String GetVarStringNParticles   () const {return fVarString_NParticles  ;}
     inline G4String GetVarStringSplit        () const {return fVarString_Split       ;}
     inline G4String GetVarStringPdg          () const {return fVarString_Pdg         ;}
@@ -91,8 +93,9 @@ private:
     G4int       fTreeNumber;
     G4int       fParticleCounter;
     
-    G4String    fVarString_Condition;
     G4String    fVarString_EventId;
+    G4String    fVarString_EventSkip;
+    G4String    fVarString_ParticleSkip;
     G4String    fVarString_NParticles;
     G4String    fVarString_Split;
     G4String    fVarString_Pdg;
@@ -108,8 +111,9 @@ private:
     G4bool      fVarIsSet_EventId;
     G4bool      fVarIsSet_Polarization;
     
-    TTreeFormula* fVarTTF_Condition;       ///< 
     TTreeFormula* fVarTTF_EventId;         ///< sequence number of the event (the event number)
+    TTreeFormula* fVarTTF_EventSkip;       ///< 
+    TTreeFormula* fVarTTF_ParticleSkip;    ///< 
     TTreeFormula* fVarTTF_NParticles;      ///< number of particles
     TTreeFormula* fVarTTF_Split;           ///< 
     TTreeFormula* fVarTTF_Pdg;             ///< PDG code of particle

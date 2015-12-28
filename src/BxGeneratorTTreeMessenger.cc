@@ -24,6 +24,8 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     fNEntriesCmd(0),
     fVarDirectoryCmd(0),
     fVarEventIdCmd(0),
+    fVarEventSkipCmd(0),
+    fVarParticleSkipCmd(0),
     fVarNParticlesCmd(0),
     fVarPdgCmd(0),
     fVarEkinCmd(0),
@@ -55,6 +57,14 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     
     fVarEventIdCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/event_id", this);
     fVarEventIdCmd->SetGuidance("");
+    
+    fVarEventSkipCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/event_skip_if", this);
+    fVarEventSkipCmd->SetGuidance("");
+    fVarEventSkipCmd->SetGuidance("Default:    0");
+    
+    fVarParticleSkipCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/particle_skip_if", this);
+    fVarParticleSkipCmd->SetGuidance("");
+    fVarParticleSkipCmd->SetGuidance("Default:    0");
     
     fVarNParticlesCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/n_particles", this);
     fVarNParticlesCmd->SetGuidance("Number of particles per Tree entry");
@@ -96,6 +106,8 @@ BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
     delete fNEntriesCmd;
     delete fVarDirectoryCmd;
     delete fVarEventIdCmd;
+    delete fVarEventSkipCmd;
+    delete fVarParticleSkipCmd;
     delete fVarNParticlesCmd;
     delete fVarSplitCmd;
     delete fVarPdgCmd;
@@ -122,6 +134,12 @@ void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
     } else if (cmd == fVarEventIdCmd) {
         generator->SetVarStringEventId(newValue);
         BxLog(routine) << "Event Id UI-Cmd is \"" << newValue << "\"" << endlog;
+    } else if (cmd == fVarEventSkipCmd) {
+        generator->SetVarStringEventSkip(newValue);
+        BxLog(routine) << "Event skip UI-Cmd is \"" << newValue << "\"" << endlog;
+    } else if (cmd == fVarParticleSkipCmd) {
+        generator->SetVarStringParticleSkip(newValue);
+        BxLog(routine) << "Particle skip UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarNParticlesCmd) {
         generator->SetVarStringNParticles(newValue);
         BxLog(routine) << "Number of particles UI-Cmd is \"" << newValue << "\"" << endlog;

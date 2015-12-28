@@ -42,8 +42,9 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarUnit_Ekin(MeV),
     fVarUnit_Momentum(MeV),
     fVarUnit_Coords(m),
-    fVarTTF_Condition       (0),
     fVarTTF_EventId         (0),
+    fVarTTF_EventSkip       (0),
+    fVarTTF_ParticleSkip    (0),
     fVarTTF_NParticles      (0),
     fVarTTF_Split           (0),
     fVarTTF_Pdg             (0),
@@ -79,8 +80,9 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     //fVarUnit_Momentum = MeV;
     //fVarUnit_Coords   = m;
     
-    fVarTTF_Condition       = new TTreeFormula("tf", "1" , 0);
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
+    fVarTTF_EventSkip       = new TTreeFormula("tf", "1" , 0);
+    fVarTTF_ParticleSkip    = new TTreeFormula("tf", "1" , 0);
     fVarTTF_NParticles      = new TTreeFormula("tf", "1" , 0);
     fVarTTF_Split           = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Pdg             = new TTreeFormula("tf", "22", 0);
@@ -113,10 +115,11 @@ BxGeneratorTTree::~BxGeneratorTTree() {
     delete    fMessenger;
     delete    fParticleGun;
 
-    delete    fVarTTF_Condition    ;
     delete    fVarTTF_EventId      ;
+    delete    fVarTTF_EventSkip    ;
+    delete    fVarTTF_ParticleSkip ;
     delete    fVarTTF_NParticles   ;
-    delete    fVarTTF_Split       ;
+    delete    fVarTTF_Split        ;
     delete    fVarTTF_Pdg          ;
     delete    fVarTTF_Ekin         ;
     delete[]  fVarTTF_Momentum     ;
@@ -159,18 +162,6 @@ void BxGeneratorTTree::Initialize() {
     TObjArray* tobjarr = 0;
     G4int ntokens = 0;
     TString tstring = "";
-    
-    if ( ! fVarString_Condition.isNull() ) {
-        tstring = fVarString_Condition.data();
-        fVarTTF_Condition->SetTitle(tstring.Data());
-        fVarTTF_Condition->SetTree(fTreeChain);
-        if (fVarTTF_Condition->GetMultiplicity() != 0) {
-            BxLog(error) << "\"Condition\" variable has wrong multiplicity!" << endlog;
-            BxLog(fatal) << "FATAL " << endlog;
-        }
-        fTTFmanager->Add(fVarTTF_Condition);
-        fVarTTF_Condition->Compile();
-    }
 
     if ( ! fVarString_EventId.isNull() ) {
         tstring = fVarString_EventId.data();
@@ -181,6 +172,30 @@ void BxGeneratorTTree::Initialize() {
         }
         fVarTTF_EventId->Compile();
         fVarIsSet_EventId = true;
+    }
+    
+    if ( ! fVarString_EventSkip.isNull() ) {
+        tstring = fVarString_EventSkip.data();
+        fVarTTF_EventSkip->SetTitle(tstring.Data());
+        fVarTTF_EventSkip->SetTree(fTreeChain);
+        if (fVarTTF_EventSkip->GetMultiplicity() != 0) {
+            BxLog(error) << "\"Event skip if\" variable has wrong multiplicity!" << endlog;
+            BxLog(fatal) << "FATAL " << endlog;
+        }
+        fTTFmanager->Add(fVarTTF_EventSkip);
+        fVarTTF_EventSkip->Compile();
+    }
+    
+    if ( ! fVarString_ParticleSkip.isNull() ) {
+        tstring = fVarString_ParticleSkip.data();
+        fVarTTF_ParticleSkip->SetTitle(tstring.Data());
+        fVarTTF_ParticleSkip->SetTree(fTreeChain);
+        if (fVarTTF_ParticleSkip->GetMultiplicity() != 0) {
+            BxLog(error) << "\"Particle skip if\" variable has wrong multiplicity!" << endlog;
+            BxLog(fatal) << "FATAL " << endlog;
+        }
+        fTTFmanager->Add(fVarTTF_ParticleSkip);
+        fVarTTF_ParticleSkip->Compile();
     }
 
     if ( ! fVarString_NParticles.isNull() ) {
@@ -358,14 +373,15 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     //if (fTTFmanager->GetNdata() < fVarTTF_NParticles->EvalInstance64(0))    BxLog(error) << "!!!" << endlog;
     fTTFmanager->GetNdata();
     
+    if ( fVarTTF_EventSkip->EvalInstance64(0) )  continue;
+    
     event->SetEventID(fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry);
     
     for ( fParticleCounter = fVarTTF_Split->EvalInstance64(0) ? fParticleCounter : 0;
           fParticleCounter < fVarTTF_Split->EvalInstance64(0) ? fParticleCounter + 1 : fVarTTF_NParticles->EvalInstance64(0);
           ++fParticleCounter ) {
         
-        if ( ! fVarTTF_Condition->EvalInstance64(0) )  continue;
-        //if (excluded_index)    continue;
+        if ( fVarTTF_ParticleSkip->EvalInstance64(0) )  continue;
         
         fParticle = fParticleTable->FindParticle( fVarTTF_Pdg->EvalInstance64(fParticleCounter) );
         if (!fParticle) {
