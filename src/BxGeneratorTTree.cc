@@ -368,10 +368,8 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     //    fTreeNumber = fTreeChain->GetTreeNumber();
     //    fTTFmanager->UpdateFormulaLeaves();
     //}
-
-    //TODO:
-    //if (fTTFmanager->GetNdata() < fVarTTF_NParticles->EvalInstance64(0))    BxLog(error) << "!!!" << endlog;
-    fTTFmanager->GetNdata();
+    
+    if (fTTFmanager->GetNdata() <= 0)  continue;
     
     if ( fVarTTF_EventSkip->EvalInstance64(0) )  continue;
     
