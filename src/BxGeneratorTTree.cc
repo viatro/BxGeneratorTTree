@@ -67,18 +67,6 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     {
 
     fTreeChain = new TChain();
-
-    //fTreeNumber = -1;
-    
-    //fCurrentEntry = 0;
-    //fFirstEntry = 0;
-    //fIsInitialized = false;
-    
-    //fParticleCounter = 0;
-    
-    //fVarUnit_Ekin     = MeV;
-    //fVarUnit_Momentum = MeV;
-    //fVarUnit_Coords   = m;
     
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
     fVarTTF_EventSkip       = new TTreeFormula("tf", "1" , 0);
@@ -98,9 +86,6 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_Polarization[2] = new TTreeFormula("tf", "0" , 0);
 
     fTTFmanager = new TTreeFormulaManager();
-
-    //fVarIsSet_EventId      = false;
-    //fVarIsSet_Polarization = false;
 
     fParticleGun = new G4ParticleGun();
 
@@ -123,15 +108,9 @@ BxGeneratorTTree::~BxGeneratorTTree() {
     delete    fVarTTF_Pdg          ;
     delete    fVarTTF_Ekin         ;
     delete[]  fVarTTF_Momentum     ;
-    //delete fVarTTF_Momentum[1]    ;
-    //delete fVarTTF_Momentum[3]    ;
     delete[]  fVarTTF_Coords       ;
-    //delete fVarTTF_Coords[1]      ;
-    //delete fVarTTF_Coords[2]      ;
     delete[]  fVarTTF_Polarization ;
-    //delete fVarTTF_Polarization[1];
-    //delete fVarTTF_Polarization[2];
-
+    
     delete fTreeChain;
 }
 
@@ -203,12 +182,6 @@ void BxGeneratorTTree::Initialize() {
         fVarTTF_NParticles->SetTitle(tstring.Data());
         if ( ! tstring.IsDigit() ) {
             fVarTTF_NParticles->SetTree(fTreeChain);
-            //if (fVarTTF_NParticles->GetMultiplicity()) {
-            //    fTTFmanager->Add(fVarTTF_NParticles);
-            //} else {
-            //    BxLog(error) << "\"Number of particles\" variable has wrong multiplicity!" << endlog;
-            //    BxLog(fatal) << "FATAL " << endlog;
-            //}
             if ( fVarTTF_NParticles->GetMultiplicity() != 0 ) {
                 BxLog(error) << "\"Number of particles\" variable has wrong multiplicity!" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;

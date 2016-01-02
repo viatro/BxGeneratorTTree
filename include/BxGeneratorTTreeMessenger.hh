@@ -17,8 +17,6 @@ class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
 class BxGeneratorTTree;
 
-//using namespace std;
-
 ///Messenger for BxGeneratorTTreeMessenger
 class BxGeneratorTTreeMessenger: public G4UImessenger {
 

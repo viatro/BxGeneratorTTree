@@ -34,7 +34,6 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     fVarPolarizationCmd(0)
     {
     
-    //generator = gen;
     fDirectory = new G4UIdirectory("/bx/generator/TTree/");
     fDirectory->SetGuidance("Control of BxTTree event generator");
     

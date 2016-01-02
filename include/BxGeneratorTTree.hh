@@ -38,9 +38,6 @@ public:
     /// Set the input file to read.
     void AddInputFileName(const G4String& name) {fTreeChain->Add(name.data());}
 
-    // Get the input file to read.
-    //virtual inline G4String GetInputFileName() const {return fInputFileName;}
-    
     /// Set the TTree name.
     void SetTreeName(const G4String& name) {fTreeChain->SetName(name.data());}
 
