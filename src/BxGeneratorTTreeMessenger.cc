@@ -25,6 +25,7 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     fVarDirectoryCmd(0),
     fVarEventIdCmd(0),
     fVarEventSkipCmd(0),
+    fVarEventRotateIsoCmd(0),
     fVarParticleSkipCmd(0),
     fVarNParticlesCmd(0),
     fVarPdgCmd(0),
@@ -73,6 +74,10 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     fVarSplitCmd->SetGuidance("");
     fVarSplitCmd->SetGuidance("Default:    0");
     
+    fVarRotateIsoCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/rotate_iso", this);
+    fVarRotateIsoCmd->SetGuidance("");
+    fVarRotateIsoCmd->SetGuidance("Default:    0");
+    
     fVarPdgCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/pdg", this);
     fVarPdgCmd->SetGuidance("PDG code of particle");
     fVarPdgCmd->SetGuidance("Default:    22");
@@ -109,6 +114,7 @@ BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
     delete fVarParticleSkipCmd;
     delete fVarNParticlesCmd;
     delete fVarSplitCmd;
+    delete fVarRotateIsoCmd;
     delete fVarPdgCmd;
     delete fVarEkinCmd;
     delete fVarMomentumCmd;
@@ -145,6 +151,9 @@ void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
     } else if (cmd == fVarSplitCmd) {
         generator->SetVarStringSplit(newValue);
         BxLog(routine) << "Split UI-Cmd is \"" << newValue << "\"" << endlog;
+    } else if (cmd == fVarRotateIsoCmd) {
+        generator->SetVarStringRotateIso(newValue);
+        BxLog(routine) << "RotateIso UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarPdgCmd) {
         generator->SetVarStringPdg(newValue);
         BxLog(routine) << "PDG UI-Cmd is \"" << newValue << "\"" << endlog;

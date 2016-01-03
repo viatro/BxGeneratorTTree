@@ -42,6 +42,7 @@ class BxGeneratorTTreeMessenger: public G4UImessenger {
         G4UIcmdWithAString*     fVarParticleSkipCmd;
         G4UIcmdWithAString*     fVarNParticlesCmd;
         G4UIcmdWithAString*     fVarSplitCmd;
+        G4UIcmdWithAString*     fVarRotateIsoCmd;
         G4UIcmdWithAString*     fVarPdgCmd;
         G4UIcmdWithAString*     fVarEkinCmd;
         G4UIcmdWithAString*     fVarMomentumCmd;

@@ -13,18 +13,16 @@
 #include "TTreeFormulaManager.h"
 
 #include "G4Event.hh"
-#include "BxOutputVertex.hh"
 #include "G4PrimaryVertex.hh"
-
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
 #include "G4UnitsTable.hh"
-
+#include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
 #include "G4ParticleMomentum.hh"
 #include "G4PrimaryParticle.hh"
-#include "G4SystemOfUnits.hh"
+#include "G4SPSAngDistribution.hh"
 
 #include "BxOutputVertex.hh"
 #include "BxVGenerator.hh"
@@ -34,7 +32,7 @@
 
 BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fTreeChain(0),
-    fTreeNumber(-1),
+    //fTreeNumber(-1),
     fCurrentEntry(0),
     fFirstEntry(0),
     fIsInitialized(false),
@@ -47,6 +45,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_ParticleSkip    (0),
     fVarTTF_NParticles      (0),
     fVarTTF_Split           (0),
+    fVarTTF_RotateIso       (0),
     fVarTTF_Pdg             (0),
     fVarTTF_Ekin            (0),
     fVarTTF_Momentum[0]     (0),
@@ -61,8 +60,11 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fTTFmanager(0),
     fVarIsSet_EventId(false),
     fVarIsSet_Polarization(false),
+    fParticle(),
     fParticleGun(0),
     fParticleTable(0),
+    fSPSAng(0),
+    fRotation(G4ParticleMomentum(0,0,1)),
     fMessenger(0)
     {
 
@@ -73,6 +75,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_ParticleSkip    = new TTreeFormula("tf", "1" , 0);
     fVarTTF_NParticles      = new TTreeFormula("tf", "1" , 0);
     fVarTTF_Split           = new TTreeFormula("tf", "0" , 0);
+    fVarTTF_RotateIso       = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Pdg             = new TTreeFormula("tf", "22", 0);
     fVarTTF_Ekin            = new TTreeFormula("tf", "1" , 0);
     fVarTTF_Momentum[0]     = new TTreeFormula("tf", "0" , 0);
@@ -90,7 +93,12 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fParticleGun = new G4ParticleGun();
 
     fParticleTable = G4ParticleTable::GetParticleTable();
-
+    
+    fSPSAng = new G4SPSAngDistribution();
+    G4SPSRandomGenerator *biasRndm = new G4SPSRandomGenerator;
+    fSPSAng->SetBiasRndm(biasRndm);
+    fSPSAng->SetAngDistType("iso");
+    
     fMessenger  = new BxGeneratorTTreeMessenger(this);
     
     BxLog(warning) << "\n!!!!!!!!!!    BxGeneratorTTree built    !!!!!!!!!!" << endlog;
@@ -105,11 +113,14 @@ BxGeneratorTTree::~BxGeneratorTTree() {
     delete    fVarTTF_ParticleSkip ;
     delete    fVarTTF_NParticles   ;
     delete    fVarTTF_Split        ;
+    delete    fVarTTF_RotateIso    ;
     delete    fVarTTF_Pdg          ;
     delete    fVarTTF_Ekin         ;
     delete[]  fVarTTF_Momentum     ;
     delete[]  fVarTTF_Coords       ;
     delete[]  fVarTTF_Polarization ;
+    
+    delete    fSPSAng;
     
     delete fTreeChain;
 }
@@ -201,6 +212,19 @@ void BxGeneratorTTree::Initialize() {
             }
         }
         fVarTTF_Split->Compile();
+    }
+    
+    if ( ! fVarString_RotateIso.isNull() ) {
+        tstring = fVarString_RotateIso.data();
+        fVarTTF_RotateIso->SetTitle(tstring.Data());
+        if ( ! tstring.IsDigit() ) {
+            fVarTTF_RotateIso->SetTree(fTreeChain);
+            if ( fVarTTF_RotateIso->GetMultiplicity() != 0 ) {
+                BxLog(error) << "\"RotateIso\" variable has wrong multiplicity!" << endlog;
+                BxLog(fatal) << "FATAL " << endlog;
+            }
+        }
+        fVarTTF_RotateIso->Compile();
     }
 
     if ( ! fVarString_Pdg.isNull() ) {
@@ -348,6 +372,8 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
     event->SetEventID(fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry);
     
+    if ( fVarTTF_RotateIso->EvalInstance64(0) && fRotation == G4ParticleMomentum(0,0,1) )   fRotation = fSPSAng->GenerateOne();
+    
     for ( fParticleCounter = fVarTTF_Split->EvalInstance64(0) ? fParticleCounter : 0;
           fParticleCounter < fVarTTF_Split->EvalInstance64(0) ? fParticleCounter + 1 : fVarTTF_NParticles->EvalInstance64(0);
           ++fParticleCounter ) {
@@ -380,7 +406,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
                     fVarTTF_Momentum[0]->EvalInstance(fParticleCounter),
                     fVarTTF_Momentum[1]->EvalInstance(fParticleCounter),
                     fVarTTF_Momentum[2]->EvalInstance(fParticleCounter)
-                )
+                ).rotateUz(fRotation)
             );
         } else {
             fParticleGun->SetParticleMomentum (
@@ -388,7 +414,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
                     fVarUnit_Momentum * fVarTTF_Momentum[0]->EvalInstance(fParticleCounter),
                     fVarUnit_Momentum * fVarTTF_Momentum[1]->EvalInstance(fParticleCounter),
                     fVarUnit_Momentum * fVarTTF_Momentum[2]->EvalInstance(fParticleCounter)
-                )
+                ).rotateUz(fRotation)
             );
         }
     
@@ -427,5 +453,6 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     if (fParticleCounter >= fVarTTF_NParticles->EvalInstance64(0)) {
         ++fCurrentEntry;
         fParticleCounter = 0;
+        fRotation = G4ParticleMomentum(0,0,1);
     }
 }

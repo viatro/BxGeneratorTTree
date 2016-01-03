@@ -12,7 +12,10 @@
 
 #include "BxVGenerator.hh"
 
+#include "G4ParticleMomentum.hh"
+
 class G4Event;
+class G4SPSAngDistribution;
 class BxGeneratorTTreeMessenger;
 class TTreeFormula;
 class TTreeFormulaManager;
@@ -61,6 +64,7 @@ public:
     inline void SetVarStringParticleSkip (const G4String& a) {fVarString_ParticleSkip = a;}
     inline void SetVarStringNParticles   (const G4String& a) {fVarString_NParticles   = a;}
     inline void SetVarStringSplit        (const G4String& a) {fVarString_Split        = a;}
+    inline void SetVarStringRotateIso    (const G4String& a) {fVarString_RotateIso    = a;}
     inline void SetVarStringPdg          (const G4String& a) {fVarString_Pdg          = a;}
     inline void SetVarStringEkin         (const G4String& a) {fVarString_Ekin         = a;}
     inline void SetVarStringMomentum     (const G4String& a) {fVarString_Momentum     = a;}
@@ -72,12 +76,13 @@ public:
     inline G4String GetVarStringParticleSkip () const {return fVarString_ParticleSkip;}
     inline G4String GetVarStringNParticles   () const {return fVarString_NParticles  ;}
     inline G4String GetVarStringSplit        () const {return fVarString_Split       ;}
+    inline G4String GetVarStringRotateIso    () const {return fVarString_RotateIso   ;}
     inline G4String GetVarStringPdg          () const {return fVarString_Pdg         ;}
     inline G4String GetVarStringEkin         () const {return fVarString_Ekin        ;}
     inline G4String GetVarStringMomentum     () const {return fVarString_Momentum    ;}
     inline G4String GetVarStringCoords       () const {return fVarString_Coords      ;}
     inline G4String GetVarStringPolarization () const {return fVarString_Polarization;}
-  
+    
   //private  members
 private:
     G4int       fCurrentEntry;  ///< TTree entry counter
@@ -87,7 +92,7 @@ private:
     G4int       fLastEntry;     ///< last entry to be read.
     G4int       fNEntries;      ///< 
     
-    G4int       fTreeNumber;
+    //G4int       fTreeNumber;
     G4int       fParticleCounter;
     
     G4String    fVarString_EventId;
@@ -95,6 +100,7 @@ private:
     G4String    fVarString_ParticleSkip;
     G4String    fVarString_NParticles;
     G4String    fVarString_Split;
+    G4String    fVarString_RotateIso;
     G4String    fVarString_Pdg;
     G4String    fVarString_Ekin;
     G4String    fVarString_Momentum;
@@ -113,6 +119,7 @@ private:
     TTreeFormula* fVarTTF_ParticleSkip;    ///< 
     TTreeFormula* fVarTTF_NParticles;      ///< number of particles
     TTreeFormula* fVarTTF_Split;           ///< 
+    TTreeFormula* fVarTTF_RotateIso;       ///< 
     TTreeFormula* fVarTTF_Pdg;             ///< PDG code of particle
     TTreeFormula* fVarTTF_Ekin;            ///< particle kinetic energy
     TTreeFormula* fVarTTF_Momentum[3];     ///< particle momentum
@@ -124,6 +131,10 @@ private:
     G4ParticleTable*           fParticleTable;
     G4ParticleDefinition*      fParticle;
 	G4ParticleGun*             fParticleGun;
+    
+    G4SPSAngDistribution*      fSPSAng;
+    G4ParticleMomentum         fRotation;
+    
     BxGeneratorTTreeMessenger* fMessenger;
 };
 
