@@ -48,19 +48,19 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_RotateIso       (0),
     fVarTTF_Pdg             (0),
     fVarTTF_Ekin            (0),
-    fVarTTF_Momentum[0]     (0),
-    fVarTTF_Momentum[1]     (0),
-    fVarTTF_Momentum[2]     (0),
-    fVarTTF_Coords[0]       (0),
-    fVarTTF_Coords[1]       (0),
-    fVarTTF_Coords[2]       (0),
-    fVarTTF_Polarization[0] (0),
-    fVarTTF_Polarization[1] (0),
-    fVarTTF_Polarization[2] (0),
+    //fVarTTF_Momentum[0]     (0),
+    //fVarTTF_Momentum[1]     (0),
+    //fVarTTF_Momentum[2]     (0),
+    //fVarTTF_Coords[0]       (0),
+    //fVarTTF_Coords[1]       (0),
+    //fVarTTF_Coords[2]       (0),
+    //fVarTTF_Polarization[0] (0),
+    //fVarTTF_Polarization[1] (0),
+    //fVarTTF_Polarization[2] (0),
     fTTFmanager(0),
     fVarIsSet_EventId(false),
     fVarIsSet_Polarization(false),
-    fParticle(),
+    fParticle(0),
     fParticleGun(0),
     fParticleTable(0),
     fSPSAng(0),
@@ -366,9 +366,10 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     //    fTTFmanager->UpdateFormulaLeaves();
     //}
     
-    if (fTTFmanager->GetNdata() <= 0)  continue;
-    
-    if ( fVarTTF_EventSkip->EvalInstance64(0) )  continue;
+    if ( fTTFmanager->GetNdata() <= 0  ||  fVarTTF_EventSkip->EvalInstance64(0) )  {
+        ++fCurrentEntry;
+        return;
+    }
     
     event->SetEventID(fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry);
     
