@@ -366,7 +366,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
     event->SetEventID(fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry);
     
-    if ( fVarTTF_RotateIso->EvalInstance64(0) && fRotation == G4ParticleMomentum(0,0,1) )   fRotation = fSPSAng->GenerateOne();
+    if ( fVarTTF_RotateIso->EvalInstance64(0) && fParticleCounter == 0 )   fRotation = fSPSAng->GenerateOne();
     
     for ( fParticleCounter = fVarTTF_Split->EvalInstance64(0) ? fParticleCounter : 0;
           fParticleCounter < fVarTTF_Split->EvalInstance64(0) ? fParticleCounter + 1 : fVarTTF_NParticles->EvalInstance64(0);
