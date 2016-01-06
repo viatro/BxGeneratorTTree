@@ -374,23 +374,23 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         
         if ( fVarTTF_ParticleSkip->EvalInstance64(0) )  continue;
         
-        fParticle = fParticleTable->FindParticle( fVarTTF_Pdg->EvalInstance64(fParticleCounter) );
+        G4int pdg = fVarTTF_Pdg->EvalInstance64(fParticleCounter);
+        fParticle = fParticleTable->FindParticle(pdg);
         if (!fParticle) {
-            fParticle = fParticleTable->GetIonTable()->GetIon( fVarTTF_Pdg->EvalInstance64(fParticleCounter) );
+            fParticle = fParticleTable->GetIonTable()->GetIon(pdg);
             if (!fParticle) { // Unknown particle --> geantino
                 fParticle = fParticleTable->FindParticle("geantino");
-                BxLog(warning) << "WARNING! " << "Entry " << fCurrentEntry << " : replace particle with PDG " << fVarTTF_Pdg->EvalInstance64(fParticleCounter) << " to geantino" << endlog;
+                BxLog(warning) << "WARNING! " << "Entry " << fCurrentEntry << " : replace particle with PDG " << pdg << " to geantino" << endlog;
             }
         }
     
         fParticleGun->SetParticleDefinition(fParticle);
         
-        G4ParticleMomentum momentum =
-            G4ParticleMomentum (
-                fVarUnit_Momentum * fVarTTF_Momentum[0]->EvalInstance(fParticleCounter),
-                fVarUnit_Momentum * fVarTTF_Momentum[1]->EvalInstance(fParticleCounter),
-                fVarUnit_Momentum * fVarTTF_Momentum[2]->EvalInstance(fParticleCounter)
-            );
+        G4ParticleMomentum momentum (
+            fVarUnit_Momentum * fVarTTF_Momentum[0]->EvalInstance(fParticleCounter),
+            fVarUnit_Momentum * fVarTTF_Momentum[1]->EvalInstance(fParticleCounter),
+            fVarUnit_Momentum * fVarTTF_Momentum[2]->EvalInstance(fParticleCounter)
+        );
         
         G4double mass = fParticle->GetPDGMass();
         
@@ -402,13 +402,13 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         momentum = momentum.rotateUz(fRotation);
         fParticleGun->SetParticleMomentumDirection( momentum );
         
-        fParticleGun->SetParticlePosition (
-            G4ThreeVector (
-                fVarUnit_Coords * fVarTTF_Coords[0]->EvalInstance(fParticleCounter),
-                fVarUnit_Coords * fVarTTF_Coords[1]->EvalInstance(fParticleCounter),
-                fVarUnit_Coords * fVarTTF_Coords[2]->EvalInstance(fParticleCounter)
-            )
+        G4ThreeVector position (
+            fVarUnit_Coords * fVarTTF_Coords[0]->EvalInstance(fParticleCounter),
+            fVarUnit_Coords * fVarTTF_Coords[1]->EvalInstance(fParticleCounter),
+            fVarUnit_Coords * fVarTTF_Coords[2]->EvalInstance(fParticleCounter)
         );
+        
+        fParticleGun->SetParticlePosition(position);
     
         if (fVarIsSet_Polarization) {
             fParticleGun->SetParticlePolarization (
@@ -422,23 +422,30 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
         fParticleGun->GeneratePrimaryVertex(event);
     
-        //TODO: make this to be working properly with splitting
-        BxOutputVertex::Get()->SetEventID(event->GetEventID());
-        BxOutputVertex::Get()->SetPDG(fParticleGun->GetParticleDefinition()->GetPDGEncoding());
-        BxOutputVertex::Get()->SetEnergy(fParticleGun->GetParticleEnergy()/MeV);
-        BxOutputVertex::Get()->SetDirection(fParticleGun->GetParticleMomentumDirection());
-        BxOutputVertex::Get()->SetPosition(fParticleGun->GetParticlePosition());
-        BxOutputVertex::Get()->SetTime(0.);
-    
+        if ( fVarTTF_Split->EvalInstance64(0) ) {
+            BxOutputVertex::Get()->SetEventID(event->GetEventID());
+            BxOutputVertex::Get()->SetPDG(pdg);
+            BxOutputVertex::Get()->SetEnergy(energy/MeV);
+            BxOutputVertex::Get()->SetDirection(momentum);
+            BxOutputVertex::Get()->SetPosition(position/m);
+            BxOutputVertex::Get()->SetTime(0.);
+        } else {
+            BxOutputVertex::Get()->SetDId(fParticleCounter);
+            BxOutputVertex::Get()->SetDPDG(pdg);
+            BxOutputVertex::Get()->SetDEnergy(energy/MeV);
+            BxOutputVertex::Get()->SetDDirection(momentum);
+            BxOutputVertex::Get()->SetDPosition(position/m);
+            BxOutputVertex::Get()->SetDTime(0.);
+            BxOutputVertex::Get()->SetDaughters();
+        }
         BxLog(trace) << "Entry " << fCurrentEntry
-                    << ", event_id = " << event->GetEventID()
-                    << " :  " << fParticle->GetParticleName()
-                    << "\t->"
-                    << ( (fParticleGun->GetParticleEnergy() >= 0) ? "\tEkin = " : "" )
-                    << ( (fParticleGun->GetParticleEnergy() >= 0) ? G4String(G4BestUnit(fParticleGun->GetParticleEnergy(), "Energy")) : "" )
-                    << ( (fParticleGun->GetParticleEnergy() >= 0) ? ", direction = " : "\tmomentum = " )
-                    << ( (fParticleGun->GetParticleEnergy() >= 0) ? G4BestUnit(fParticleGun->GetParticleMomentumDirection(), "Energy") : G4BestUnit(fParticleGun->GetParticleMomentum(), "Energy") )
-                    << "\tat position " << G4BestUnit(fParticleGun->GetParticlePosition(), "Length") << endlog;
+                << ", event_id = " << event->GetEventID()
+                << " : particle #" << fParticleCounter
+                << " : " << fParticle->GetParticleName()
+                << "\t->"
+                << "\tEkin = " << G4BestUnit(energy, "Energy")
+                << ", direction = " << momentum.x() << " " << momentum.y() << " " << momentum.z()
+                << "\t@ " << G4BestUnit(position, "Length") << endlog;
     }
     
     //++fParticleCounter;
