@@ -383,7 +383,24 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         }
     
         fParticleGun->SetParticleDefinition(fParticle);
-    
+        
+        G4ParticleMomentum momentum =
+            G4ParticleMomentum (
+                fVarUnit_Momentum * fVarTTF_Momentum[0]->EvalInstance(fParticleCounter),
+                fVarUnit_Momentum * fVarTTF_Momentum[1]->EvalInstance(fParticleCounter),
+                fVarUnit_Momentum * fVarTTF_Momentum[2]->EvalInstance(fParticleCounter)
+            );
+        
+        G4double mass = fParticle->GetPDGMass();
+        
+        G4double energy = fVarUnit_Ekin * fVarTTF_Ekin->EvalInstance(fParticleCounter);
+        if (energy < 0) energy = std::sqrt(mass*mass + momentum.mag2()) - mass;
+        fParticleGun->SetParticleEnergy(energy);
+        
+        momentum = momentum.unit();
+        momentum = momentum.rotateUz(fRotation);
+        fParticleGun->SetParticleMomentumDirection( momentum );
+        
         fParticleGun->SetParticlePosition (
             G4ThreeVector (
                 fVarUnit_Coords * fVarTTF_Coords[0]->EvalInstance(fParticleCounter),
@@ -391,25 +408,6 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
                 fVarUnit_Coords * fVarTTF_Coords[2]->EvalInstance(fParticleCounter)
             )
         );
-    
-        if (fVarTTF_Ekin->EvalInstance(fParticleCounter) >= 0) {
-            fParticleGun->SetParticleEnergy( fVarUnit_Ekin * fVarTTF_Ekin->EvalInstance(fParticleCounter) );
-            fParticleGun->SetParticleMomentumDirection (
-                G4ParticleMomentum (
-                    fVarTTF_Momentum[0]->EvalInstance(fParticleCounter),
-                    fVarTTF_Momentum[1]->EvalInstance(fParticleCounter),
-                    fVarTTF_Momentum[2]->EvalInstance(fParticleCounter)
-                ).rotateUz(fRotation)
-            );
-        } else {
-            fParticleGun->SetParticleMomentum (
-                G4ParticleMomentum (
-                    fVarUnit_Momentum * fVarTTF_Momentum[0]->EvalInstance(fParticleCounter),
-                    fVarUnit_Momentum * fVarTTF_Momentum[1]->EvalInstance(fParticleCounter),
-                    fVarUnit_Momentum * fVarTTF_Momentum[2]->EvalInstance(fParticleCounter)
-                ).rotateUz(fRotation)
-            );
-        }
     
         if (fVarIsSet_Polarization) {
             fParticleGun->SetParticlePolarization (
