@@ -31,7 +31,6 @@
 #include "BxManager.hh"
 
 BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
-    fTreeChain(0),
     //fTreeNumber(-1),
     fCurrentEntry(0),
     fFirstEntry(0),
@@ -44,21 +43,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarUnit_Coords(m),
     fVarIsSet_EventId(false),
     fVarIsSet_Polarization(false),
-    fVarTTF_EventId         (0),
-    fVarTTF_EventSkip       (0),
-    fVarTTF_ParticleSkip    (0),
-    fVarTTF_NParticles      (0),
-    fVarTTF_Split           (0),
-    fVarTTF_RotateIso       (0),
-    fVarTTF_Pdg             (0),
-    fVarTTF_Ekin            (0),
-    fTTFmanager(0),
-    fParticleTable(0),
-    fParticleGun(0),
-    fParticle(0),
-    fSPSAng(0),
-    fRotation(G4ParticleMomentum(0,0,1)),
-    fMessenger(0)
+    fRotation(G4ParticleMomentum(0,0,1))
     {
     
     fTreeChain = new TChain();

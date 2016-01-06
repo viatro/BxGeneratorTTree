@@ -15,27 +15,7 @@
 
 #include "BxLogger.hh"
 
-BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
-    generator(gen),
-    fDirectory(0),
-    fInputFileNameCmd(0),
-    fTreeNameCmd(0),
-    fFirstEntryCmd(0),
-    fNEntriesCmd(0),
-    fVarDirectoryCmd(0),
-    fVarEventIdCmd(0),
-    fVarEventSkipCmd(0),
-    fVarParticleSkipCmd(0),
-    fVarNParticlesCmd(0),
-    fVarSplitCmd(0),
-    fVarRotateIsoCmd(0),
-    fVarPdgCmd(0),
-    fVarEkinCmd(0),
-    fVarMomentumCmd(0),
-    fVarCoordsCmd(0),
-    fVarPolarizationCmd(0)
-    {
-    
+BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : generator(gen) {
     fDirectory = new G4UIdirectory("/bx/generator/TTree/");
     fDirectory->SetGuidance("Control of BxTTree event generator");
     
