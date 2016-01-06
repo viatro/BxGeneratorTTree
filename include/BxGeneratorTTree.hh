@@ -41,10 +41,10 @@ public:
     /// Set the input file to read.
     void AddInputFileName(const G4String& name) {fTreeChain->Add(name.data());}
 
-    /// Set the TTree name.
+    /// Set the TTree(Chain) name.
     void SetTreeName(const G4String& name) {fTreeChain->SetName(name.data());}
 
-    /// Get the TTree name.
+    /// Get the TTree(Chain) name.
     G4String GetTreeName() const {return fTreeChain->GetName();}
     
     /// Set the first entry to be processed.
@@ -86,10 +86,10 @@ public:
   //private  members
 private:
     TChain*     fTreeChain;     ///< event tree that contains the events.
-    G4int       fCurrentEntry;  ///< TTree entry counter
+    G4int       fCurrentEntry;  ///< TTree(Chain) entry counter
     G4int       fFirstEntry;    ///< first entry to be read.
     G4int       fLastEntry;     ///< last entry to be read.
-    G4int       fNEntries;      ///< 
+    G4int       fNEntries;      ///< number of entries to be processed
     G4bool      fIsInitialized; ///< initialization flag
     
     //G4int       fTreeNumber;

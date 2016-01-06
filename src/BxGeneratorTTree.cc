@@ -60,7 +60,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fRotation(G4ParticleMomentum(0,0,1)),
     fMessenger(0)
     {
-
+    
     fTreeChain = new TChain();
     
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
@@ -80,9 +80,9 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_Polarization[0] = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Polarization[1] = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Polarization[2] = new TTreeFormula("tf", "0" , 0);
-
+    
     fTTFmanager = new TTreeFormulaManager();
-
+    
     fParticleTable = G4ParticleTable::GetParticleTable();
     fParticleGun = new G4ParticleGun();
     
@@ -99,7 +99,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
 BxGeneratorTTree::~BxGeneratorTTree() {
     delete    fMessenger;
     delete    fParticleGun;
-
+    
     delete    fVarTTF_EventId      ;
     delete    fVarTTF_EventSkip    ;
     delete    fVarTTF_ParticleSkip ;
@@ -118,9 +118,9 @@ BxGeneratorTTree::~BxGeneratorTTree() {
 }
 
 void BxGeneratorTTree::Initialize() {
-
-    BxLog(routine) << "\n!!!!!!!!!!    BxGeneratorTTree initialization started    !!!!!!!!!!" << endlog;
-
+    
+    BxLog(routine) << "BxGeneratorTTree initialization started" << endlog;
+    
     //fInputFile = TFile::Open(fInputFileName.data(),"read");
     //if (!fInputFile || fInputFile->IsZombie()) {
     //    BxLog(error) << fInputFileName.data() << " ROOT file does not exist or zombie!" << endlog;
@@ -133,18 +133,19 @@ void BxGeneratorTTree::Initialize() {
     //    BxLog(error) << fTTreeName.data() << " tree not found by generator initializing function!" << endlog;
     //    BxLog(fatal) << "FATAL " << endlog;
     //}
-
+    
     fLastEntry = fTreeChain->GetEntries() - 1;
     if (fFirstEntry > fLastEntry) {
-        BxLog(error) << "First entry " << fFirstEntry << " > max possible entry " << fLastEntry << " for given Tree" << endlog ;
+        BxLog(error) << "First entry " << fFirstEntry << " > max possible entry " << fLastEntry << " for given Tree(Chain)" << endlog ;
         BxLog(fatal) << "FATAL " << endlog;
     }
+    
     fTreeChain->LoadTree(0);
-
+    
     TObjArray* tobjarr = 0;
     G4int ntokens = 0;
     TString tstring = "";
-
+    
     if ( ! fVarString_EventId.isNull() ) {
         tstring = fVarString_EventId.data();
         fVarTTF_EventId->SetTitle(tstring.Data());
@@ -179,7 +180,7 @@ void BxGeneratorTTree::Initialize() {
         fTTFmanager->Add(fVarTTF_ParticleSkip);
         fVarTTF_ParticleSkip->Compile();
     }
-
+    
     if ( ! fVarString_NParticles.isNull() ) {
         tstring = fVarString_NParticles.data();
         fVarTTF_NParticles->SetTitle(tstring.Data());
@@ -218,7 +219,7 @@ void BxGeneratorTTree::Initialize() {
         }
         fVarTTF_RotateIso->Compile();
     }
-
+    
     if ( ! fVarString_Pdg.isNull() ) {
         tstring = fVarString_Pdg.data();
         fVarTTF_Pdg->SetTitle(tstring.Data());
@@ -235,7 +236,7 @@ void BxGeneratorTTree::Initialize() {
         }
         fVarTTF_Pdg->Compile();
     }
-
+    
     if ( ! fVarString_Ekin.isNull() ) {
         tstring = fVarString_Ekin.data();
         tobjarr = tstring.Tokenize(" \t\n");
@@ -259,7 +260,7 @@ void BxGeneratorTTree::Initialize() {
         }
         fVarTTF_Ekin->Compile();
     }
-
+    
     if ( ! fVarString_Momentum.isNull() ) {
         tstring = fVarString_Momentum.data();
         tobjarr = tstring.Tokenize(" \t\n");
@@ -285,7 +286,7 @@ void BxGeneratorTTree::Initialize() {
             fVarTTF_Momentum[i]->Compile();
         }
     }
-
+    
     if ( ! fVarString_Coords.isNull() ) {
         tstring = fVarString_Coords.data();
         tobjarr = tstring.Tokenize(" \t\n");
@@ -311,7 +312,7 @@ void BxGeneratorTTree::Initialize() {
             fVarTTF_Coords[i]->Compile();
         }
     }
-
+    
     if ( ! fVarString_Polarization.isNull() ) {
         tstring = fVarString_Polarization.data();
         tobjarr = tstring.Tokenize(" \t\n");
@@ -330,11 +331,11 @@ void BxGeneratorTTree::Initialize() {
             fVarTTF_Polarization[i]->Compile();
         }
     }
-
+    
     fTTFmanager->Sync();
     fTreeChain->SetNotify(fTTFmanager);
-
-    BxLog(routine) << "\n!!!!!!!!!!    BxGeneratorTTree initialized    !!!!!!!!!!" << endlog;
+    
+    BxLog(routine) << "BxGeneratorTTree initialized" << endlog;
 }
 
 void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
@@ -342,16 +343,16 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         Initialize();
         fIsInitialized = true;
     }
-
-    if (fCurrentEntry > fLastEntry) {
+    
+    if ( fCurrentEntry > fLastEntry  ||  fCurrentEntry > fFirstEntry + fNEntries - 1 ) {
         BxManager::Get()->AbortRun(true);
         event->SetEventAborted();
-        BxLog(routine) << "End of Tree(Chain) reached" << endlog;
+        if (fCurrentEntry > fLastEntry) BxLog(routine) << "End of Tree(Chain) reached" << endlog;
         return;
     }
-
+    
     fTreeChain->LoadTree(fCurrentEntry);
-
+    
     //NOTE: without fTreeChain->SetNotify(fTTFmanager) in BxGeneratorTTree::Initialize()
     //if (fTreeNumber != fTreeChain->GetTreeNumber()) {
     //    fTreeNumber = fTreeChain->GetTreeNumber();
@@ -421,7 +422,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
         fParticleGun->GeneratePrimaryVertex(event);
     
-        //TODO: make this to be working properly
+        //TODO: make this to be working properly with splitting
         BxOutputVertex::Get()->SetEventID(event->GetEventID());
         BxOutputVertex::Get()->SetPDG(fParticleGun->GetParticleDefinition()->GetPDGEncoding());
         BxOutputVertex::Get()->SetEnergy(fParticleGun->GetParticleEnergy()/MeV);
@@ -439,7 +440,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
                     << ( (fParticleGun->GetParticleEnergy() >= 0) ? G4BestUnit(fParticleGun->GetParticleMomentumDirection(), "Energy") : G4BestUnit(fParticleGun->GetParticleMomentum(), "Energy") )
                     << "\tat position " << G4BestUnit(fParticleGun->GetParticlePosition(), "Length") << endlog;
     }
-
+    
     //++fParticleCounter;
     if (fParticleCounter >= fVarTTF_NParticles->EvalInstance64(0)) {
         ++fCurrentEntry;

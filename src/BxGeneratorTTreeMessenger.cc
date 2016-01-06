@@ -46,11 +46,11 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) :
     fTreeNameCmd->SetGuidance("Set Tree name");
     
     fFirstEntryCmd = new G4UIcmdWithAnInteger("/bx/generator/TTree/first_entry", this);
-    fFirstEntryCmd->SetGuidance("Set first TTree entry number to be processed");
+    fFirstEntryCmd->SetGuidance("Set first TTree(Chain) entry number to be processed");
     fFirstEntryCmd->SetGuidance("Default:    0");
     
     fNEntriesCmd = new G4UIcmdWithAnInteger("/bx/generator/TTree/n_entries", this);
-    fNEntriesCmd->SetGuidance("Set number of TTree entries to be processed");
+    fNEntriesCmd->SetGuidance("Set number of TTree(Chain) entries to be processed");
     fNEntriesCmd->SetGuidance("Default:    all");
     
     fVarDirectoryCmd = new G4UIdirectory("/bx/generator/TTree/var/");
