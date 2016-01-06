@@ -85,12 +85,12 @@ public:
     
   //private  members
 private:
-    G4int       fCurrentEntry;  ///< TTree entry counter
-    G4bool      fIsInitialized; ///< initialization flag
     TChain*     fTreeChain;     ///< event tree that contains the events.
+    G4int       fCurrentEntry;  ///< TTree entry counter
     G4int       fFirstEntry;    ///< first entry to be read.
     G4int       fLastEntry;     ///< last entry to be read.
     G4int       fNEntries;      ///< 
+    G4bool      fIsInitialized; ///< initialization flag
     
     //G4int       fTreeNumber;
     G4int       fParticleCounter;
@@ -129,8 +129,8 @@ private:
     TTreeFormulaManager* fTTFmanager;
     
     G4ParticleTable*           fParticleTable;
-    G4ParticleDefinition*      fParticle;
 	G4ParticleGun*             fParticleGun;
+    G4ParticleDefinition*      fParticle;
     
     G4SPSAngDistribution*      fSPSAng;
     G4ParticleMomentum         fRotation;

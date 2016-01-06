@@ -35,11 +35,15 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     //fTreeNumber(-1),
     fCurrentEntry(0),
     fFirstEntry(0),
+    fLastEntry(0),
+    fNEntries(0),
     fIsInitialized(false),
     fParticleCounter(0),
     fVarUnit_Ekin(MeV),
     fVarUnit_Momentum(MeV),
     fVarUnit_Coords(m),
+    fVarIsSet_EventId(false),
+    fVarIsSet_Polarization(false),
     fVarTTF_EventId         (0),
     fVarTTF_EventSkip       (0),
     fVarTTF_ParticleSkip    (0),
@@ -48,21 +52,10 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_RotateIso       (0),
     fVarTTF_Pdg             (0),
     fVarTTF_Ekin            (0),
-    //fVarTTF_Momentum[0]     (0),
-    //fVarTTF_Momentum[1]     (0),
-    //fVarTTF_Momentum[2]     (0),
-    //fVarTTF_Coords[0]       (0),
-    //fVarTTF_Coords[1]       (0),
-    //fVarTTF_Coords[2]       (0),
-    //fVarTTF_Polarization[0] (0),
-    //fVarTTF_Polarization[1] (0),
-    //fVarTTF_Polarization[2] (0),
     fTTFmanager(0),
-    fVarIsSet_EventId(false),
-    fVarIsSet_Polarization(false),
-    fParticle(0),
-    fParticleGun(0),
     fParticleTable(0),
+    fParticleGun(0),
+    fParticle(0),
     fSPSAng(0),
     fRotation(G4ParticleMomentum(0,0,1)),
     fMessenger(0)
@@ -90,9 +83,8 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
 
     fTTFmanager = new TTreeFormulaManager();
 
-    fParticleGun = new G4ParticleGun();
-
     fParticleTable = G4ParticleTable::GetParticleTable();
+    fParticleGun = new G4ParticleGun();
     
     fSPSAng = new G4SPSAngDistribution();
     G4SPSRandomGenerator *biasRndm = new G4SPSRandomGenerator;
