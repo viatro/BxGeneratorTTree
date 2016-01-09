@@ -17,13 +17,13 @@
 
 BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : generator(gen) {
     fDirectory = new G4UIdirectory("/bx/generator/TTree/");
-    fDirectory->SetGuidance("Control of BxTTree event generator");
+    fDirectory->SetGuidance("Control of TTree event generator");
     
     fInputFileNameCmd = new G4UIcmdWithAString("/bx/generator/TTree/add_input_file", this);
     fInputFileNameCmd->SetGuidance("Add input ROOT file (name with extension)");
     
     fTreeNameCmd = new G4UIcmdWithAString("/bx/generator/TTree/tree_name", this);
-    fTreeNameCmd->SetGuidance("Set Tree name");
+    fTreeNameCmd->SetGuidance("Set Tree(Chain) name");
     
     fFirstEntryCmd = new G4UIcmdWithAnInteger("/bx/generator/TTree/first_entry", this);
     fFirstEntryCmd->SetGuidance("Set first TTree(Chain) entry number to be processed");
@@ -79,7 +79,7 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : ge
     fVarPolarizationCmd->SetGuidance("Polarization of particle");
     fVarPolarizationCmd->SetGuidance("Default:    0 0 0");
     
-    BxLog(warning) << "\n!!!!!!!!!!    BxGeneratorTTreeMessenger built    !!!!!!!!!!" << endlog;
+    BxLog(warning) << "BxGeneratorTTreeMessenger built" << endlog;
 }
 
 
@@ -110,7 +110,7 @@ void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
         BxLog(routine) << "Added input ROOT file \"" << newValue << "\"" << endlog;
     } else if (cmd == fTreeNameCmd) {
         generator->SetTreeName(newValue);
-        BxLog(routine) << "Tree name is \"" << newValue << "\"" << endlog;
+        BxLog(routine) << "Tree(Chain) name is \"" << newValue << "\"" << endlog;
     } else if (cmd == fFirstEntryCmd) {
         generator->SetFirstEntry(fFirstEntryCmd->ConvertToInt(newValue));
 	    BxLog(routine) << "First entry to be processed is " << newValue  << endlog;

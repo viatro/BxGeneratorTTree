@@ -42,15 +42,15 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarUnit_Momentum(MeV),
     fVarUnit_Coords(m),
     fVarIsSet_EventId(false),
-    fVarIsSet_Polarization(false),
-    fRotation(G4ParticleMomentum(0,0,1))
+    fVarIsSet_Polarization(false)//,
+    //fRotation(G4ParticleMomentum(0,0,1))
     {
     
     fTreeChain = new TChain();
     
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
-    fVarTTF_EventSkip       = new TTreeFormula("tf", "1" , 0);
-    fVarTTF_ParticleSkip    = new TTreeFormula("tf", "1" , 0);
+    fVarTTF_EventSkip       = new TTreeFormula("tf", "0" , 0);
+    fVarTTF_ParticleSkip    = new TTreeFormula("tf", "0" , 0);
     fVarTTF_NParticles      = new TTreeFormula("tf", "1" , 0);
     fVarTTF_Split           = new TTreeFormula("tf", "0" , 0);
     fVarTTF_RotateIso       = new TTreeFormula("tf", "0" , 0);
@@ -76,9 +76,11 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fSPSAng->SetBiasRndm(biasRndm);
     fSPSAng->SetAngDistType("iso");
     
+    fRotation = G4ParticleMomentum(0,0,1);
+    
     fMessenger  = new BxGeneratorTTreeMessenger(this);
     
-    BxLog(warning) << "\n!!!!!!!!!!    BxGeneratorTTree built    !!!!!!!!!!" << endlog;
+    BxLog(warning) << "BxGeneratorTTree built" << endlog;
 }
 
 BxGeneratorTTree::~BxGeneratorTTree() {
@@ -106,19 +108,6 @@ void BxGeneratorTTree::Initialize() {
     
     BxLog(routine) << "BxGeneratorTTree initialization started" << endlog;
     
-    //fInputFile = TFile::Open(fInputFileName.data(),"read");
-    //if (!fInputFile || fInputFile->IsZombie()) {
-    //    BxLog(error) << fInputFileName.data() << " ROOT file does not exist or zombie!" << endlog;
-    //    BxLog(fatal) << "FATAL " << endlog ;
-    //} else {
-    //    BxLog(routine) << fInputFileName.data() << " ROOT file opened" << endlog;
-    //}
-    //fTree = dynamic_cast<TTree*>(fInputFile->Get(fTTreeName.data()));
-    //if (!fTree) {
-    //    BxLog(error) << fTTreeName.data() << " tree not found by generator initializing function!" << endlog;
-    //    BxLog(fatal) << "FATAL " << endlog;
-    //}
-    
     fLastEntry = fTreeChain->GetEntries() - 1;
     if (fFirstEntry > fLastEntry) {
         BxLog(error) << "First entry " << fFirstEntry << " > max possible entry " << fLastEntry << " for given Tree(Chain)" << endlog ;
@@ -133,93 +122,78 @@ void BxGeneratorTTree::Initialize() {
     
     if ( ! fVarString_EventId.isNull() ) {
         tstring = fVarString_EventId.data();
-        fVarTTF_EventId->SetTitle(tstring.Data());
-        if ( ! tstring.IsDigit() ) {
-            fVarTTF_EventId->SetTree(fTreeChain);
-            if (fVarTTF_EventId->GetMultiplicity()) fTTFmanager->Add(fVarTTF_EventId);
+        delete fVarTTF_EventId;
+        fVarTTF_EventId = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        if ( fVarTTF_EventId->GetMultiplicity() != 0 ) {
+            BxLog(error) << "\"Event ID\" variable has wrong multiplicity!" << endlog;
+            BxLog(fatal) << "FATAL " << endlog;
         }
-        fVarTTF_EventId->Compile();
         fVarIsSet_EventId = true;
     }
     
     if ( ! fVarString_EventSkip.isNull() ) {
         tstring = fVarString_EventSkip.data();
-        fVarTTF_EventSkip->SetTitle(tstring.Data());
-        fVarTTF_EventSkip->SetTree(fTreeChain);
+        delete fVarTTF_EventSkip;
+        fVarTTF_EventSkip = new TTreeFormula("tf", tstring.Data(), fTreeChain);
         if (fVarTTF_EventSkip->GetMultiplicity() != 0) {
             BxLog(error) << "\"Event skip if\" variable has wrong multiplicity!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
-        fTTFmanager->Add(fVarTTF_EventSkip);
-        fVarTTF_EventSkip->Compile();
     }
     
     if ( ! fVarString_ParticleSkip.isNull() ) {
         tstring = fVarString_ParticleSkip.data();
-        fVarTTF_ParticleSkip->SetTitle(tstring.Data());
-        fVarTTF_ParticleSkip->SetTree(fTreeChain);
+        delete fVarTTF_ParticleSkip;
+        fVarTTF_ParticleSkip = new TTreeFormula("tf", tstring.Data(), fTreeChain);
         if (fVarTTF_ParticleSkip->GetMultiplicity() != 0) {
             BxLog(error) << "\"Particle skip if\" variable has wrong multiplicity!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
-        fTTFmanager->Add(fVarTTF_ParticleSkip);
-        fVarTTF_ParticleSkip->Compile();
     }
     
     if ( ! fVarString_NParticles.isNull() ) {
         tstring = fVarString_NParticles.data();
-        fVarTTF_NParticles->SetTitle(tstring.Data());
-        if ( ! tstring.IsDigit() ) {
-            fVarTTF_NParticles->SetTree(fTreeChain);
-            if ( fVarTTF_NParticles->GetMultiplicity() != 0 ) {
-                BxLog(error) << "\"Number of particles\" variable has wrong multiplicity!" << endlog;
-                BxLog(fatal) << "FATAL " << endlog;
-            }
+        delete fVarTTF_NParticles;
+        fVarTTF_NParticles = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        if ( fVarTTF_NParticles->GetMultiplicity() != 0 ) {
+            BxLog(error) << "\"Number of particles\" variable has wrong multiplicity!" << endlog;
+            BxLog(fatal) << "FATAL " << endlog;
         }
-        fVarTTF_NParticles->Compile();
     }
     
     if ( ! fVarString_Split.isNull() ) {
         tstring = fVarString_Split.data();
-        fVarTTF_Split->SetTitle(tstring.Data());
-        if ( ! tstring.IsDigit() ) {
-            fVarTTF_Split->SetTree(fTreeChain);
-            if ( fVarTTF_Split->GetMultiplicity() != 0 ) {
-                BxLog(error) << "\"Split\" variable has wrong multiplicity!" << endlog;
-                BxLog(fatal) << "FATAL " << endlog;
-            }
+        delete fVarTTF_Split;
+        fVarTTF_Split = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        if ( fVarTTF_Split->GetMultiplicity() != 0 ) {
+            BxLog(error) << "\"Split\" variable has wrong multiplicity!" << endlog;
+            BxLog(fatal) << "FATAL " << endlog;
         }
-        fVarTTF_Split->Compile();
     }
     
     if ( ! fVarString_RotateIso.isNull() ) {
         tstring = fVarString_RotateIso.data();
-        fVarTTF_RotateIso->SetTitle(tstring.Data());
-        if ( ! tstring.IsDigit() ) {
-            fVarTTF_RotateIso->SetTree(fTreeChain);
-            if ( fVarTTF_RotateIso->GetMultiplicity() != 0 ) {
-                BxLog(error) << "\"RotateIso\" variable has wrong multiplicity!" << endlog;
-                BxLog(fatal) << "FATAL " << endlog;
-            }
+        delete fVarTTF_RotateIso;
+        fVarTTF_RotateIso = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        if ( fVarTTF_RotateIso->GetMultiplicity() != 0 ) {
+            BxLog(error) << "\"RotateIso\" variable has wrong multiplicity!" << endlog;
+            BxLog(fatal) << "FATAL " << endlog;
         }
-        fVarTTF_RotateIso->Compile();
     }
     
     if ( ! fVarString_Pdg.isNull() ) {
         tstring = fVarString_Pdg.data();
-        fVarTTF_Pdg->SetTitle(tstring.Data());
         if (tstring.IsDigit()) {
             fParticle = fParticleTable->FindParticle(tstring.Atoi());
             if (!fParticle)    fParticleTable->GetIonTable()->GetIon(tstring.Atoi());
             if (!fParticle) { // Unknown particle
-                BxLog(error) << "Unknown PDG code" << tstring.Atoi() << "!" << endlog;
+                BxLog(error) << "Unknown PDG code : " << tstring.Atoi() << " !" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;
             }
-        } else {
-            fVarTTF_Pdg->SetTree(fTreeChain);
-            if (fVarTTF_Pdg->GetMultiplicity())    fTTFmanager->Add(fVarTTF_Pdg);
         }
-        fVarTTF_Pdg->Compile();
+        delete fVarTTF_Pdg;
+        fVarTTF_Pdg = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        if (fVarTTF_Pdg->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Pdg);
     }
     
     if ( ! fVarString_Ekin.isNull() ) {
@@ -238,12 +212,9 @@ void BxGeneratorTTree::Initialize() {
             fVarUnit_Ekin = G4UnitDefinition::GetValueOf(tobjarr->UncheckedAt(1)->GetName());
         }
         tstring = TString(tobjarr->UncheckedAt(0)->GetName());
-        fVarTTF_Ekin->SetTitle(tstring.Data());
-        if (!tstring.IsFloat()) {
-            fVarTTF_Ekin->SetTree(fTreeChain);
-            if (fVarTTF_Ekin->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Ekin);
-        }
-        fVarTTF_Ekin->Compile();
+        delete fVarTTF_Ekin;
+        fVarTTF_Ekin = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        if (fVarTTF_Ekin->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Ekin);
     }
     
     if ( ! fVarString_Momentum.isNull() ) {
@@ -263,12 +234,9 @@ void BxGeneratorTTree::Initialize() {
         }
         for (G4int i = 0; i < 3; ++i) {
             tstring = TString(tobjarr->UncheckedAt(i)->GetName());
-            fVarTTF_Momentum[i]->SetTitle(tstring.Data());
-            if (!tstring.IsFloat()) {
-                fVarTTF_Momentum[i]->SetTree(fTreeChain);
-                if (fVarTTF_Momentum[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Momentum[i]);
-            }
-            fVarTTF_Momentum[i]->Compile();
+            delete fVarTTF_Momentum[i];
+            fVarTTF_Momentum[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            if (fVarTTF_Momentum[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Momentum[i]);
         }
     }
     
@@ -289,12 +257,9 @@ void BxGeneratorTTree::Initialize() {
         }
         for (G4int i = 0; i < 3; ++i) {
             tstring = TString(tobjarr->UncheckedAt(i)->GetName());
-            fVarTTF_Coords[i]->SetTitle(tstring.Data());
-            if (!tstring.IsFloat()) {
-                fVarTTF_Coords[i]->SetTree(fTreeChain);
-                if (fVarTTF_Coords[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Coords[i]);
-            }
-            fVarTTF_Coords[i]->Compile();
+            delete fVarTTF_Coords[i];
+            fVarTTF_Coords[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            if (fVarTTF_Coords[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Coords[i]);
         }
     }
     
@@ -303,22 +268,40 @@ void BxGeneratorTTree::Initialize() {
         tobjarr = tstring.Tokenize(" \t\n");
         ntokens = tobjarr->GetEntries();
         if (ntokens != 3) {
-            BxLog(error) << "Variable String \"Polarization\" has wrong tokens number!" << endlog;
+            BxLog(error) << "Variable string \"Polarization\" has wrong tokens number!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
         for (G4int i = 0; i < 3; ++i) {
             tstring = TString(tobjarr->UncheckedAt(i)->GetName());
-            fVarTTF_Polarization[i]->SetTitle(tstring.Data());
-            if (!tstring.IsFloat()) {
-                fVarTTF_Polarization[i]->SetTree(fTreeChain);
-                if (fVarTTF_Polarization[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Polarization[i]);
-            }
-            fVarTTF_Polarization[i]->Compile();
+            delete fVarTTF_Polarization[i];
+            fVarTTF_Polarization[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            if (fVarTTF_Polarization[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Polarization[i]);
         }
+        fVarIsSet_Polarization = true;
     }
     
     fTTFmanager->Sync();
     fTreeChain->SetNotify(fTTFmanager);
+    
+    BxLog(trace) << "\nTTreeFormula-s :"
+        << "\n\tEventId         : " << fVarTTF_EventId         -> GetTitle()
+        << "\n\tEventSkip       : " << fVarTTF_EventSkip       -> GetTitle()
+        << "\n\tParticleSkip    : " << fVarTTF_ParticleSkip    -> GetTitle()
+        << "\n\tNParticles      : " << fVarTTF_NParticles      -> GetTitle()
+        << "\n\tSplit           : " << fVarTTF_Split           -> GetTitle()
+        << "\n\tRotateIso       : " << fVarTTF_RotateIso       -> GetTitle()
+        << "\n\tPdg             : " << fVarTTF_Pdg             -> GetTitle()
+        << "\n\tEkin            : " << fVarTTF_Ekin            -> GetTitle()
+        << "\n\tMomentum[0]     : " << fVarTTF_Momentum[0]     -> GetTitle()
+        << "\n\tMomentum[1]     : " << fVarTTF_Momentum[1]     -> GetTitle()
+        << "\n\tMomentum[2]     : " << fVarTTF_Momentum[2]     -> GetTitle()
+        << "\n\tCoords[0]       : " << fVarTTF_Coords[0]       -> GetTitle()
+        << "\n\tCoords[1]       : " << fVarTTF_Coords[1]       -> GetTitle()
+        << "\n\tCoords[2]       : " << fVarTTF_Coords[2]       -> GetTitle()
+        << "\n\tPolarization[0] : " << fVarTTF_Polarization[0] -> GetTitle()
+        << "\n\tPolarization[1] : " << fVarTTF_Polarization[1] -> GetTitle()
+        << "\n\tPolarization[2] : " << fVarTTF_Polarization[2] -> GetTitle()
+        << endlog;
     
     BxLog(routine) << "BxGeneratorTTree initialized" << endlog;
 }
@@ -351,11 +334,20 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
     event->SetEventID(fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry);
     
+BxLog(trace) << "\n\n!!!!!\t EventID is " << event->GetEventID() << "; RotateIso is " << fVarTTF_RotateIso->EvalInstance64(0) << "; fParticleCounter == 0 is " << (fParticleCounter == 0) << " \t!!!!!\n\n" << endlog;
+    
     if ( fVarTTF_RotateIso->EvalInstance64(0) && fParticleCounter == 0 )   fRotation = fSPSAng->GenerateOne();
     
-    for ( fParticleCounter = fVarTTF_Split->EvalInstance64(0) ? fParticleCounter : 0;
-          fParticleCounter < fVarTTF_Split->EvalInstance64(0) ? fParticleCounter + 1 : fVarTTF_NParticles->EvalInstance64(0);
-          ++fParticleCounter ) {
+BxLog(trace) << "\n\n!!!!!\t fRotation == (" << fRotation.x() << ", " << fRotation.y() << ", " << fRotation.z() << ") \t!!!!!\n\n" << endlog;
+    
+    G4int loop_begin = 0;
+    G4int loop_end = fVarTTF_NParticles->EvalInstance64(0);
+    if ( fVarTTF_Split->EvalInstance64(0) ) {
+        loop_begin = fParticleCounter;
+        loop_end = fParticleCounter + 1;
+    }
+    
+    for ( G4int loop_iter = loop_begin; loop_iter < loop_end; ++loop_iter, ++fParticleCounter) {
         
         if ( fVarTTF_ParticleSkip->EvalInstance64(0) )  continue;
         
@@ -423,14 +415,14 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
             BxOutputVertex::Get()->SetDTime(0.);
             BxOutputVertex::Get()->SetDaughters();
         }
-        BxLog(trace) << "Entry " << fCurrentEntry
-                << ", event_id = " << event->GetEventID()
-                << " : particle #" << fParticleCounter
-                << " : " << fParticle->GetParticleName()
-                << "\t->"
-                << "\tEkin = " << G4BestUnit(energy, "Energy")
-                << ", direction = " << momentum.x() << " " << momentum.y() << " " << momentum.z()
-                << "\t@ " << G4BestUnit(position, "Length") << endlog;
+        BxLog(trace) << "  Entry " << fCurrentEntry
+                     << ", event_id = " << event->GetEventID()
+                     << " : particle #" << fParticleCounter
+                     << " : " << fParticle->GetParticleName()
+                     << "\t=>" << endlog;
+        BxLog(trace) << "    Ekin = " << G4BestUnit(energy, "Energy") << endlog;
+        BxLog(trace) << "    direction = " << momentum.x() << " " << momentum.y() << " " << momentum.z() << endlog;
+        BxLog(trace) << "    position = " << G4BestUnit(position, "Length") << endlog;
     }
     
     //++fParticleCounter;
