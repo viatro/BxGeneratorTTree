@@ -319,8 +319,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     }
     
     if ( fCurrentEntry > fLastEntry  ||  fCurrentEntry > fFirstEntry + fNEntries - 1 ) {
-        BxManager::Get()->AbortRun(true);
-        event->SetEventAborted();
+        BxManager::Get()->AbortRun(false);
         if (fCurrentEntry > fLastEntry) BxLog(routine) << "End of Tree(Chain) reached" << endlog;
         return;
     }
