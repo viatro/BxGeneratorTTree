@@ -12,10 +12,7 @@
 
 #include "BxVGenerator.hh"
 
-#include "G4ParticleMomentum.hh"
-
 class G4Event;
-class G4SPSAngDistribution;
 class BxGeneratorTTreeMessenger;
 class TTreeFormula;
 class TTreeFormulaManager;
@@ -23,7 +20,6 @@ class TTreeFormulaManager;
 
 class BxGeneratorTTree : public BxVGenerator {
 public:
-
     ///default constructor
     BxGeneratorTTree();
     
@@ -83,7 +79,7 @@ public:
     inline G4String GetVarStringCoords       () const {return fVarString_Coords      ;}
     inline G4String GetVarStringPolarization () const {return fVarString_Polarization;}
     
-  //private  members
+//private  members
 private:
     TChain*     fTreeChain;     ///< event tree that contains the events.
     G4int       fCurrentEntry;  ///< TTree(Chain) entry counter
@@ -131,9 +127,7 @@ private:
     G4ParticleTable*           fParticleTable;
 	G4ParticleGun*             fParticleGun;
     G4ParticleDefinition*      fParticle;
-    
-    G4SPSAngDistribution*      fSPSAng;
-    G4ParticleMomentum         fRotation;
+    G4ThreeVector*             fRotationAngles;
     
     BxGeneratorTTreeMessenger* fMessenger;
 };
