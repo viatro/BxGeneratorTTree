@@ -117,14 +117,16 @@ void BxGeneratorTTree::Initialize() {
     
     if ( ! fVarString_EventId.isNull() ) {
         tstring = fVarString_EventId.data();
-        delete fVarTTF_EventId;
-        fVarTTF_EventId = new TTreeFormula("tf", tstring.Data(), fTreeChain);
-        if ( fVarTTF_EventId->GetMultiplicity() != 0 ) {
-            BxLog(error) << "\"Event ID\" variable has wrong multiplicity!" << endlog;
-            BxLog(fatal) << "FATAL " << endlog;
+        if ( ! tstring.IsFloat() ) {
+            delete fVarTTF_EventId;
+            fVarTTF_EventId = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            if ( fVarTTF_EventId->GetMultiplicity() != 0 ) {
+                BxLog(error) << "\"Event ID\" variable has wrong multiplicity!" << endlog;
+                BxLog(fatal) << "FATAL " << endlog;
+            }
+            fVarTTF_EventId->SetQuickLoad(true);
+            fVarIsSet_EventId = true;
         }
-        fVarTTF_EventId->SetQuickLoad(true);
-        fVarIsSet_EventId = true;
     }
     
     if ( ! fVarString_EventSkip.isNull() ) {
