@@ -1,0 +1,172 @@
+# ===== PreInit =====
+
+#  Define the level of verbosity of messages
+# options: development debugging, trace, routine, warning, error
+# default: routine
+/bxlog trace
+
+# Set the event report frequency
+# default: 1000
+/event/eventreport  1
+
+#Set verbose levels
+/bx/physics/verbose  0
+#/run/verbose  0
+
+/event/64bit 1
+
+/event/npethreshold 0
+
+# Define  random seed
+#/run/heprandomseed 12345679
+
+#Run number being simulated
+/bx/detector/run_number 12106
+
+#Detector configuration. Possible choices are: full, fullWater, inWater, inScint, outer, ctf
+#Default: full
+/bx/detector/configuration full
+
+#PMTs distribution. Possible choices are: real, uniform.
+#Default: real
+/bx/detector/PMTdistribution real
+#Number of PMTs defined only for uniform distribution
+#/bx/detector/PMTnumber 2000
+
+#PMT configuration. Possible choices are: diskPMT, diskPMTwithConcentrator, simplePMT
+#default: simplePMT
+/bx/detector/PMTconfiguration simplePMT
+
+#Setting of NoConcentrators (true=concentrators disabled for any PMT configuration): 
+/bx/detector/noConcentrators false
+
+#Vessel's configuration
+#/bx/detector/deformed_vessel true
+#/bx/detector/vessel_step 1 cm
+
+#Geometry debugging
+#/bx/detector/check_overlaps false
+
+#/bx/physics/optical 0
+#/bx/detector/nopmts true
+
+#/bx/physics/lightyield 11700
+
+#/bx/physics/new_em 1
+#/bx/physics/nuclear 1
+#/run/writeisotopes 1
+#/run/writedeposits 1
+
+#/bx/physics/hadronic standard
+
+# Activate decay processes
+#/bx/physics/decay 1
+
+# ===== End of PreInit =====
+
+#-----------------------------------
+/run/initialize
+#-----------------------------------
+
+
+#===== Generator setup =====
+
+# Define the generator
+/bx/generator/select TTree
+
+#Set Tree name
+/bx/generator/TTree/tree_name    tree
+
+#Add input ROOT file (full path with extension)
+#NOTE: use this command several times to add more than one file. '*' is also supported
+/bx/generator/TTree/add_input_file    ~/storage/input_file.root
+
+#Set first TTree(Chain) entry number to be processed
+#Default:    0
+/bx/generator/TTree/first_entry    0
+
+#Set number of TTree(Chain) entries to be processed
+#WARNING! Do NOT change /run/beamOn value from 2^32-1. Use this command instead.
+#Default:    all
+/bx/generator/TTree/n_entries    10
+
+#Uncomment for change default variables names.
+#Argument is the variables names in input Tree with unit.
+#You can write exact values instead of names/expressions in args.
+#They will be used for all simulated events.
+#In this case, such branches in input Tree are not needed.
+#It is also possible to mix names and exact values
+#(e.g. /bx/generator/TTree/coords    particle.x  particle.y  0.5    m)
+#Any expression that is working in TTree::Draw() can be used (even special, like Sum$, see docs of TTree::Draw()).
+#WARNING! If there are more than one tokens assumed (as for energy, momentum, coords, polarization),
+#         DO NOT use whitespaces or tabs inside , because they are tokens separators.
+#BONUS: If there are only exact values everywhere in /var/ below,
+#       commands /tree_name, /add_input_file above and file(s) with TTree are not needed
+
+#Event id number
+#WARNING! Do not use exact number here!
+#Default: Tree(Chain) entry number
+#/bx/generator/TTree/var/event_id    iev
+
+#Skip event if condition (boolean expression) is true.
+#NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
+#Example: skip event if particles PDG array contains mu- or mu+:
+#         /event_skip_if    Sum$(p.pdg==13 || p.pdg==-13) > 0
+#Default:    0
+#/bx/generator/TTree/var/event_skip_if    event_condition
+
+#Skip particle if condition (boolean expression) is true.
+#NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
+#Example: skip event if particle is mu- or mu+:
+#         /event_skip_if    p.pdg==13 || p.pdg==-13
+#Default:    0
+#/bx/generator/TTree/var/particle_skip_if    particle_condition
+
+#Number of particles per Tree entry
+#Default:    1
+#/bx/generator/TTree/var/n_particles    n
+
+#Split particles to separate events.
+#NOTE: particles within one TTree(Chain) entry will be simulated as & written into separate events, but with same EventID
+#NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
+#Default:    0
+#/bx/generator/TTree/var/split    1
+
+#Rotate whole event to a random angle
+#Can be used to obtain isotropic particle source when all 3 components in Momentum/direction are exact values, like default  0 0 1  MeV.
+#NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
+#Default:    0
+/bx/generator/TTree/var/rotate_iso    0
+
+#PDG code
+#Default: 22
+#/bx/generator/TTree/var/pdg    pdg
+
+#Kinetic energy
+#Note: see Momentum/direction
+#Default:    1    MeV
+#/bx/generator/TTree/var/Ekin    E    MeV
+
+#Momentum/direction
+#NOTE: if value of Ekin < 0 (in mac-file or/and in input TTree), (px,py,pz)-vector is used as 3-momentum vector.
+#      Otherwise (px,py,pz)-vector is normalized and used as direction vector.
+#Default:    0 0 1    MeV
+#/bx/generator/TTree/var/p    px py pz    MeV
+
+#Vertex coords
+#Default:    0 0 0    m
+#/bx/generator/TTree/var/coords    x y z    m
+
+#Particle polarization
+#Default: none
+#/bx/generator/TTree/var/polz    polz_x polz_y polz_z
+
+# ===== End of Generator setup =====
+
+
+# Define output file name
+/run/filename BxGeneratorTTree_test
+
+#WARNING! DO NOT EDIT ! G4int max for 32bit: 2^32-1
+#         Use /bx/generator/TTree/n_entries command instead.
+/run/beamOn 2147483647
