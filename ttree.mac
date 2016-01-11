@@ -3,7 +3,7 @@
 #  Define the level of verbosity of messages
 # options: development debugging, trace, routine, warning, error
 # default: routine
-/bxlog trace
+#/bxlog trace
 
 # Set the event report frequency
 # default: 1000
