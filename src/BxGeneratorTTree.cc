@@ -104,12 +104,12 @@ void BxGeneratorTTree::Initialize() {
     BxLog(routine) << "BxGeneratorTTree initialization started" << endlog;
     
     fLastEntry = fTreeChain->GetEntries() - 1;
-    if (fFirstEntry > fLastEntry) {
+    if (fFirstEntry > fLastEntry && fTreeChain->LoadTree(0) != -1) {
         BxLog(error) << "First entry " << fFirstEntry << " > max possible entry " << fLastEntry << " for given Tree(Chain)" << endlog ;
         BxLog(fatal) << "FATAL " << endlog;
     }
     
-    fTreeChain->LoadTree(0);
+    //fTreeChain->LoadTree(0);
     
     TObjArray* tobjarr = 0;
     G4int ntokens = 0;
@@ -320,14 +320,29 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         fIsInitialized = true;
     }
     
-    if ( fCurrentEntry > fLastEntry  ||  fCurrentEntry > fFirstEntry + fNEntries - 1 ) {
-        event->SetEventAborted();
-        BxManager::Get()->AbortRun();
-        if (fCurrentEntry > fLastEntry) BxLog(routine) << "End of Tree(Chain) reached" << endlog;
-        return;
+    G4int loadedEntry = fTreeChain->LoadTree(fCurrentEntry);
+    
+    if (loadedEntry < -1) {
+        //if loadedEntry == -1 (i.e. chain is empty) and one (or more) of TTreeFormula-s is not a float number,
+        //it already failed in Initialize() with "Bad numerical expression".
+        //So it is safe here to use fTreeChain->LoadTree(fCurrentEntry) == -1 as good case
+        //to provide possibility for using this generator without TTree.
+        
+        //error descriptions from TChain::LoadTree()
+             if (loadedEntry == -2) BxLog(fatal/*error*/) << "The requested entry number of less than zero or too large for the chain or too large for the large TTree" << endlog;
+        else if (loadedEntry == -3) BxLog(fatal/*error*/) << "The file corresponding to the entry could not be correctly open" << endlog;
+        else if (loadedEntry == -4) BxLog(fatal/*error*/) << "The TChainElement corresponding to the entry is missing or the TTree is missing from the file"  << endlog;
+        //event->SetEventAborted();
+        //BxManager::Get()->AbortRun();
+        //return;
     }
     
-    fTreeChain->LoadTree(fCurrentEntry);
+    if ( fCurrentEntry > fFirstEntry + fNEntries - 1  ||  ( fCurrentEntry > fLastEntry  &&  loadedEntry != -1 ) ) {
+        event->SetEventAborted();
+        BxManager::Get()->AbortRun();
+        if ( fCurrentEntry > fLastEntry  &&  loadedEntry != -1 ) BxLog(routine) << "End of Tree(Chain) reached" << endlog;
+        return;
+    }
     
     //NOTE: without fTreeChain->SetNotify(fTTFmanager) in BxGeneratorTTree::Initialize()
     //if (fTreeNumber != fTreeChain->GetTreeNumber()) {
@@ -353,15 +368,23 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
     for ( G4int loop_iter = loop_begin; loop_iter < loop_end; ++loop_iter, ++fParticleCounter) {
         
-        if ( fVarTTF_ParticleSkip->EvalInstance64(0) )  continue;
+        if ( fVarTTF_ParticleSkip->EvalInstance64(0) )  {
+            if ( fVarTTF_Split->EvalInstance64(0) ) {
+                event->SetEventAborted();
+                return;
+            } else continue;
+        }
         
         G4int pdg = fVarTTF_Pdg->EvalInstance64(fParticleCounter);
         fParticle = fParticleTable->FindParticle(pdg);
         if (!fParticle) {
             fParticle = fParticleTable->GetIonTable()->GetIon(pdg);
-            if (!fParticle) { // Unknown particle --> geantino
-                fParticle = fParticleTable->FindParticle("geantino");
-                BxLog(warning) << "WARNING! " << "Entry " << fCurrentEntry << " : replace particle with PDG " << pdg << " to geantino" << endlog;
+            if (!fParticle) { // Skip unknown particle
+                BxLog(warning) << "WARNING! " << "Entry " << fCurrentEntry << " : skipping unknown particle with PDG code " << pdg << endlog;
+                if ( fVarTTF_Split->EvalInstance64(0) ) {
+                    event->SetEventAborted();
+                    return;
+                } else continue;
             }
         }
     
