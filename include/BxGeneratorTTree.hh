@@ -8,12 +8,16 @@
 #ifndef _BxGeneratorTTree_HH
 #define _BxGeneratorTTree_HH
 
+#include "BxVGenerator.hh"
+
 #include "TChain.h"
 
-#include "BxVGenerator.hh"
+#include <vector>
+#include <utility>
 
 class G4Event;
 class BxGeneratorTTreeMessenger;
+
 class TTreeFormula;
 class TTreeFormulaManager;
 
@@ -90,6 +94,10 @@ private:
     
     //G4int       fTreeNumber;
     G4int       fParticleCounter;
+    //G4int       fPostponed;     ///< 
+    
+    //std::vector<std::pair<G4int,G4int> > fPostponedInfo;
+    std::vector<std::pair<G4int,G4int> > fPostponed;
     
     G4String    fVarString_EventId;
     G4String    fVarString_EventSkip;
@@ -122,7 +130,7 @@ private:
     TTreeFormula* fVarTTF_Coords[3];       ///< event vertex position in detector coord. syst.
     TTreeFormula* fVarTTF_Polarization[3]; ///< particle polarization vector
     
-    TTreeFormulaManager* fTTFmanager;
+    TTreeFormulaManager*       fTTFmanager;
     
     G4ParticleTable*           fParticleTable;
 	G4ParticleGun*             fParticleGun;

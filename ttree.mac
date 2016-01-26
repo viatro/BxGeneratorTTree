@@ -54,6 +54,7 @@
 
 #/bx/physics/new_em 1
 #/bx/physics/nuclear 1
+#/bx/physics/ionphysics 1
 #/run/writeisotopes 1
 #/run/writedeposits 1
 
