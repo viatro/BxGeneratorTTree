@@ -340,7 +340,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         //return;
     }
     
-    if (fPostponed.size() == 0) {
+    if (fPostponed.empty()) {
         if ( fCurrentEntry > fFirstEntry + fNEntries - 1  ||  ( fCurrentEntry > fLastEntry  &&  loadedEntry != -1 ) ) {
             event->SetEventAborted();
             BxManager::Get()->AbortRun();
@@ -378,7 +378,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     G4int event_id = fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry;
     event->SetEventID(event_id);
     
-    if ( fVarTTF_RotateIso->EvalInstance64(0)  &&  fParticleCounter == 0 )   fRotationAngles->set(twopi * G4UniformRand(), twopi * G4UniformRand(), twopi * G4UniformRand());
+    if ( fVarTTF_RotateIso->EvalInstance64(0)  &&  fParticleCounter == 0 )   fRotationAngles->set(twopi * G4UniformRand(), std::acos(1 - 2*G4UniformRand()), twopi * G4UniformRand());
     
     G4bool split = fVarTTF_Split->EvalInstance64(0);
     
@@ -391,8 +391,8 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     
     for ( G4int loop_iter = loop_begin; loop_iter < loop_end; ++loop_iter, ++fParticleCounter) {
         if ( fVarTTF_ParticleSkip->EvalInstance64(fParticleCounter) )  {
-            BxLog(trace) << "  Entry " << (fParticleCounter==0 ? fCurrentEntry-1 : fCurrentEntry)
-                         << ", event_id = " << BxOutputVertex::Get()->GetEventID()
+            BxLog(trace) << "  Entry " << fCurrentEntry
+                         << ", event_id = " << event_id
                          << " : particle #" << fParticleCounter
                          << " : SKIP" << endlog;
             if (split)  event->SetEventAborted();
@@ -405,7 +405,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
             //fParticle = fParticleTable->GetIonTable()->GetIon(pdg);
             //if (!fParticle) { // Skip unknown particle
                 BxLog(warning) << "  Entry " << fCurrentEntry
-                               << ", event_id = " << BxOutputVertex::Get()->GetEventID()
+                               << ", event_id = " << event_id
                                << " : particle #" << fParticleCounter
                                << " : WARNING!" << endlog;
                 BxLog(warning) << "  Skipping unknown particle with PDG code " << pdg << endlog;

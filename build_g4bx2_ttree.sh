@@ -20,5 +20,5 @@ source please_source_me
 
 cd ${g4bx2_dir}/build
 cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/ ../. &&
-make
+make -j 8
 
