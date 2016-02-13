@@ -7,13 +7,12 @@
 
 #include "BxGeneratorTTreeMessenger.hh"
 #include "BxGeneratorTTree.hh"
+#include "BxLogger.hh"
 
 #include "G4UIcommand.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithAnInteger.hh"
-
-#include "BxLogger.hh"
 
 BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : generator(gen) {
     fDirectory = new G4UIdirectory("/bx/generator/TTree/");

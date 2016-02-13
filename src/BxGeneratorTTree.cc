@@ -6,6 +6,11 @@
 // -------------------------------------------------- //
 
 #include "BxGeneratorTTree.hh"
+#include "BxOutputVertex.hh"
+#include "BxVGenerator.hh"
+#include "BxGeneratorTTreeMessenger.hh"
+#include "BxLogger.hh"
+#include "BxManager.hh"
 
 #include "TString.h"
 #include "TObjArray.h"
@@ -24,12 +29,6 @@
 #include "G4PrimaryParticle.hh"
 #include "G4PhysicalConstants.hh"
 #include "Randomize.hh"
-
-#include "BxOutputVertex.hh"
-#include "BxVGenerator.hh"
-#include "BxGeneratorTTreeMessenger.hh"
-#include "BxLogger.hh"
-#include "BxManager.hh"
 
 BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     //fTreeNumber(-1),
@@ -350,13 +349,10 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     } else {
         std::pair<G4int,G4int> postponed_info = fPostponed.back();
         fPostponed.pop_back();
-        event->SetEventID(postponed_info.first);
         BxOutputVertex::Get()->SetEventID(postponed_info.first);
-        //BxOutputVertex::Get()->SetUserInt1(postponed_info.second);
-        //BxOutputVertex::Get()->SetUserInt2(1);
-        //BxOutputVertex::Get()->SetUsers();
-        BxOutputVertex::Get()->SetDId(postponed_info.second);
-        BxOutputVertex::Get()->SetDaughters();
+        BxOutputVertex::Get()->SetUserInt1(postponed_info.second);
+        BxOutputVertex::Get()->SetUserInt2(1);
+        BxOutputVertex::Get()->SetUsers();
         BxLog(trace) << "  Entry " << (fParticleCounter == 0  ?  fCurrentEntry - 1  :  fCurrentEntry)
                      << ", event_id = " << BxOutputVertex::Get()->GetEventID()
                      << " : particle #" << postponed_info.second
@@ -376,7 +372,6 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
     }
     
     G4int event_id = fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : fCurrentEntry;
-    event->SetEventID(event_id);
     
     if ( fVarTTF_RotateIso->EvalInstance64(0)  &&  fParticleCounter == 0 )   fRotationAngles->set(twopi * G4UniformRand(), std::acos(1 - 2*G4UniformRand()), twopi * G4UniformRand());
     
@@ -453,11 +448,9 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         fParticleGun->GeneratePrimaryVertex(event);
         
         BxOutputVertex::Get()->SetEventID(event_id);
-        //BxOutputVertex::Get()->SetUserInt1(fParticleCounter);
-        //BxOutputVertex::Get()->SetUserInt2(0);
-        //BxOutputVertex::Get()->SetUsers();
-        BxOutputVertex::Get()->SetDId(fParticleCounter);
-        BxOutputVertex::Get()->SetDaughters();
+        BxOutputVertex::Get()->SetUserInt1(fParticleCounter);
+        BxOutputVertex::Get()->SetUserInt2(0);
+        BxOutputVertex::Get()->SetUsers();
         if (split) {
             BxOutputVertex::Get()->SetPDG(pdg);
             BxOutputVertex::Get()->SetEnergy(energy/MeV);

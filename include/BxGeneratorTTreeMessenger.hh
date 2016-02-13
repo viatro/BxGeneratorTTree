@@ -10,12 +10,12 @@
 
 #include "G4UImessenger.hh"
 
+class BxGeneratorTTree;
 class BxPrimaryGeneratorAction;
 class G4UIcommand;
 class G4UIdirectory;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
-class BxGeneratorTTree;
 
 ///Messenger for BxGeneratorTTreeMessenger
 class BxGeneratorTTreeMessenger: public G4UImessenger {
