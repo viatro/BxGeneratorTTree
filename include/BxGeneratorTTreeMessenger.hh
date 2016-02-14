@@ -46,7 +46,7 @@ class BxGeneratorTTreeMessenger: public G4UImessenger {
         G4UIcmdWithAString*     fVarPdgCmd;
         G4UIcmdWithAString*     fVarEkinCmd;
         G4UIcmdWithAString*     fVarMomentumCmd;
-        G4UIcmdWithAString*     fVarCoordsCmd;
+        G4UIcmdWithAString*     fVarPositionCmd;
         G4UIcmdWithAString*     fVarPolarizationCmd;
 };
 

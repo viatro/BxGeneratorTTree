@@ -15,6 +15,7 @@
 #include <vector>
 #include <utility>
 
+
 class G4Event;
 class BxGeneratorTTreeMessenger;
 
@@ -68,7 +69,7 @@ public:
     inline void SetVarStringPdg          (const G4String& a) {fVarString_Pdg          = a;}
     inline void SetVarStringEkin         (const G4String& a) {fVarString_Ekin         = a;}
     inline void SetVarStringMomentum     (const G4String& a) {fVarString_Momentum     = a;}
-    inline void SetVarStringCoords       (const G4String& a) {fVarString_Coords       = a;}
+    inline void SetVarStringPosition     (const G4String& a) {fVarString_Position     = a;}
     inline void SetVarStringPolarization (const G4String& a) {fVarString_Polarization = a;}
     
     inline G4String GetVarStringEventId      () const {return fVarString_EventId     ;}
@@ -80,7 +81,7 @@ public:
     inline G4String GetVarStringPdg          () const {return fVarString_Pdg         ;}
     inline G4String GetVarStringEkin         () const {return fVarString_Ekin        ;}
     inline G4String GetVarStringMomentum     () const {return fVarString_Momentum    ;}
-    inline G4String GetVarStringCoords       () const {return fVarString_Coords      ;}
+    inline G4String GetVarStringPosition     () const {return fVarString_Position    ;}
     inline G4String GetVarStringPolarization () const {return fVarString_Polarization;}
     
 //private  members
@@ -108,12 +109,12 @@ private:
     G4String    fVarString_Pdg;
     G4String    fVarString_Ekin;
     G4String    fVarString_Momentum;
-    G4String    fVarString_Coords;
+    G4String    fVarString_Position;
     G4String    fVarString_Polarization;
     
     G4double    fVarUnit_Ekin;       ///< unit of energy
     G4double    fVarUnit_Momentum;   ///< unit of momentum
-    G4double    fVarUnit_Coords;     ///< unit of coordinates
+    G4double    fVarUnit_Position;   ///< unit of coordinates
     
     G4bool      fVarIsSet_EventId;
     G4bool      fVarIsSet_Polarization;
@@ -127,7 +128,7 @@ private:
     TTreeFormula* fVarTTF_Pdg;             ///< PDG code of particle
     TTreeFormula* fVarTTF_Ekin;            ///< particle kinetic energy
     TTreeFormula* fVarTTF_Momentum[3];     ///< particle momentum
-    TTreeFormula* fVarTTF_Coords[3];       ///< event vertex position in detector coord. syst.
+    TTreeFormula* fVarTTF_Position[3];     ///< event vertex position in detector coord. syst.
     TTreeFormula* fVarTTF_Polarization[3]; ///< particle polarization vector
     
     TTreeFormulaManager*       fTTFmanager;
@@ -138,6 +139,7 @@ private:
     G4ThreeVector*             fRotationAngles;
     
     BxGeneratorTTreeMessenger* fMessenger;
+    
 };
 
 #endif

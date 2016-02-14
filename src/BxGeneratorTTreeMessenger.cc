@@ -66,13 +66,13 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : ge
     fVarEkinCmd->SetGuidance("Kinetic energy of particle");
     fVarEkinCmd->SetGuidance("Default:    1 MeV");
     
-    fVarMomentumCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/p", this);
+    fVarMomentumCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/momentum", this);
     fVarMomentumCmd->SetGuidance("Momentum/direction of particle");
     fVarMomentumCmd->SetGuidance("Default:    0 0 1 MeV");
     
-    fVarCoordsCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/coords", this);
-    fVarCoordsCmd->SetGuidance("");
-    fVarCoordsCmd->SetGuidance("Default:    0 0 0 m");
+    fVarPositionCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/position", this);
+    fVarPositionCmd->SetGuidance("");
+    fVarPositionCmd->SetGuidance("Default:    0 0 0 m");
     
     fVarPolarizationCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/polz", this);
     fVarPolarizationCmd->SetGuidance("Polarization of particle");
@@ -98,7 +98,7 @@ BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
     delete fVarPdgCmd;
     delete fVarEkinCmd;
     delete fVarMomentumCmd;
-    delete fVarCoordsCmd;
+    delete fVarPositionCmd;
     delete fVarPolarizationCmd;
 }
 
@@ -143,9 +143,9 @@ void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
     } else if (cmd == fVarMomentumCmd) {
         generator->SetVarStringMomentum(newValue);
         BxLog(routine) << "Momentum/direction UI-Cmd is \"" << newValue << "\"" << endlog;
-    } else if (cmd == fVarCoordsCmd) {
-        generator->SetVarStringCoords(newValue);
-        BxLog(routine) << "Coordinates UI-Cmd is \"" << newValue << "\"" << endlog;
+    } else if (cmd == fVarPositionCmd) {
+        generator->SetVarStringPosition(newValue);
+        BxLog(routine) << "Position UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarPolarizationCmd) {
         generator->SetVarStringPolarization(newValue);
         BxLog(routine) << "Polarization UI-Cmd is \"" << newValue << "\"" << endlog;

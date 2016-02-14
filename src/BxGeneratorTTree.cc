@@ -41,7 +41,7 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     //fPostponed(0),
     fVarUnit_Ekin(MeV),
     fVarUnit_Momentum(MeV),
-    fVarUnit_Coords(m),
+    fVarUnit_Position(m),
     fVarIsSet_EventId(false),
     fVarIsSet_Polarization(false)
     {
@@ -59,9 +59,9 @@ BxGeneratorTTree::BxGeneratorTTree(): BxVGenerator("BxGeneratorTTree"),
     fVarTTF_Momentum[0]     = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Momentum[1]     = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Momentum[2]     = new TTreeFormula("tf", "1" , 0);
-    fVarTTF_Coords[0]       = new TTreeFormula("tf", "0" , 0);
-    fVarTTF_Coords[1]       = new TTreeFormula("tf", "0" , 0);
-    fVarTTF_Coords[2]       = new TTreeFormula("tf", "0" , 0);
+    fVarTTF_Position[0]     = new TTreeFormula("tf", "0" , 0);
+    fVarTTF_Position[1]     = new TTreeFormula("tf", "0" , 0);
+    fVarTTF_Position[2]     = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Polarization[0] = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Polarization[1] = new TTreeFormula("tf", "0" , 0);
     fVarTTF_Polarization[2] = new TTreeFormula("tf", "0" , 0);
@@ -91,7 +91,7 @@ BxGeneratorTTree::~BxGeneratorTTree() {
     delete    fVarTTF_Pdg          ;
     delete    fVarTTF_Ekin         ;
     delete[]  fVarTTF_Momentum     ;
-    delete[]  fVarTTF_Coords       ;
+    delete[]  fVarTTF_Position     ;
     delete[]  fVarTTF_Polarization ;
     
     delete fRotationAngles;
@@ -248,27 +248,27 @@ void BxGeneratorTTree::Initialize() {
         }
     }
     
-    if ( ! fVarString_Coords.isNull() ) {
-        tstring = fVarString_Coords.data();
+    if ( ! fVarString_Position.isNull() ) {
+        tstring = fVarString_Position.data();
         tobjarr = tstring.Tokenize(" \t\n");
         ntokens = tobjarr->GetEntries();
         if (ntokens < 3 || ntokens > 4) {
-            BxLog(error) << "Variable string \"Coords\" has wrong tokens number!" << endlog;
+            BxLog(error) << "Variable string \"Position\" has wrong tokens number!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
         if (ntokens == 4) {
             if ( G4UnitDefinition::GetCategory(tobjarr->UncheckedAt(3)->GetName()) != "Length" ) {
-                BxLog(error) << "Variable string \"Coords\" has wrong unit category or unit name!" << endlog;
+                BxLog(error) << "Variable string \"Position\" has wrong unit category or unit name!" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;
             }
-            fVarUnit_Coords = G4UnitDefinition::GetValueOf(tobjarr->UncheckedAt(3)->GetName());
+            fVarUnit_Position = G4UnitDefinition::GetValueOf(tobjarr->UncheckedAt(3)->GetName());
         }
         for (G4int i = 0; i < 3; ++i) {
             tstring = TString(tobjarr->UncheckedAt(i)->GetName());
-            delete fVarTTF_Coords[i];
-            fVarTTF_Coords[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
-            if (fVarTTF_Coords[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Coords[i]);
-            //fVarTTF_Coords[i]->SetQuickLoad(true);
+            delete fVarTTF_Position[i];
+            fVarTTF_Position[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            if (fVarTTF_Position[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Position[i]);
+            //fVarTTF_Position[i]->SetQuickLoad(true);
         }
     }
     
@@ -305,9 +305,9 @@ void BxGeneratorTTree::Initialize() {
         << "\n\tMomentum[0]     : " << fVarTTF_Momentum[0]     -> GetTitle()
         << "\n\tMomentum[1]     : " << fVarTTF_Momentum[1]     -> GetTitle()
         << "\n\tMomentum[2]     : " << fVarTTF_Momentum[2]     -> GetTitle()
-        << "\n\tCoords[0]       : " << fVarTTF_Coords[0]       -> GetTitle()
-        << "\n\tCoords[1]       : " << fVarTTF_Coords[1]       -> GetTitle()
-        << "\n\tCoords[2]       : " << fVarTTF_Coords[2]       -> GetTitle()
+        << "\n\tPosition[0]     : " << fVarTTF_Position[0]     -> GetTitle()
+        << "\n\tPosition[1]     : " << fVarTTF_Position[1]     -> GetTitle()
+        << "\n\tPosition[2]     : " << fVarTTF_Position[2]     -> GetTitle()
         << "\n\tPolarization[0] : " << fVarTTF_Polarization[0] -> GetTitle()
         << "\n\tPolarization[1] : " << fVarTTF_Polarization[1] -> GetTitle()
         << "\n\tPolarization[2] : " << fVarTTF_Polarization[2] -> GetTitle()
@@ -428,9 +428,9 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
         fParticleGun->SetParticleMomentumDirection(momentum);
         
         G4ThreeVector position (
-            fVarUnit_Coords * fVarTTF_Coords[0]->EvalInstance(fParticleCounter),
-            fVarUnit_Coords * fVarTTF_Coords[1]->EvalInstance(fParticleCounter),
-            fVarUnit_Coords * fVarTTF_Coords[2]->EvalInstance(fParticleCounter)
+            fVarUnit_Position * fVarTTF_Position[0]->EvalInstance(fParticleCounter),
+            fVarUnit_Position * fVarTTF_Position[1]->EvalInstance(fParticleCounter),
+            fVarUnit_Position * fVarTTF_Position[2]->EvalInstance(fParticleCounter)
         );
         
         fParticleGun->SetParticlePosition(position);

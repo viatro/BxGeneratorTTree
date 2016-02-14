@@ -152,7 +152,7 @@
 #NOTE: if value of Ekin < 0 (in mac-file or/and in input TTree), (px,py,pz)-vector is used as 3-momentum vector.
 #      Otherwise (px,py,pz)-vector is normalized and used as direction vector.
 #Default:    0 0 1    MeV
-#/bx/generator/TTree/var/p    px py pz    MeV
+#/bx/generator/TTree/var/momentum    px py pz    MeV
 
 #Vertex coords
 #Default:    0 0 0    m
