@@ -313,14 +313,13 @@ void BxGeneratorTTree::Initialize() {
         << "\n\tPolarization[2] : " << fVarTTF_Polarization[2] -> GetTitle()
         << endlog;
     
+    fIsInitialized = true;
+    
     BxLog(routine) << "BxGeneratorTTree initialized" << endlog;
 }
 
 void BxGeneratorTTree::BxGeneratePrimaries(G4Event *event) {
-    if (!fIsInitialized) {
-        Initialize();
-        fIsInitialized = true;
-    }
+    if (!fIsInitialized)  Initialize();
     
     G4int loadedEntry = fTreeChain->LoadTree(fCurrentEntry);
     

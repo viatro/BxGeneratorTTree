@@ -13,7 +13,8 @@
 #include "TChain.h"
 
 #include <vector>
-#include <utility>
+//#include <utility>
+#include <queue>
 
 
 class G4Event;
@@ -98,7 +99,7 @@ private:
     //G4int       fPostponed;     ///< 
     
     //std::vector<std::pair<G4int,G4int> > fPostponedInfo;
-    std::vector<std::pair<G4int,G4int> > fPostponed;
+    //std::vector<std::pair<G4int,G4int> > fPostponed;
     
     G4String    fVarString_EventId;
     G4String    fVarString_EventSkip;
@@ -139,6 +140,24 @@ private:
     G4ThreeVector*             fRotationAngles;
     
     BxGeneratorTTreeMessenger* fMessenger;
+    
+    struct PostponedInfo {
+        G4int event_id;
+        G4int p_index;
+    };
+    std::vector<PostponedInfo> fVectorPostponedInfo;
+    
+    struct ParticleInfo {
+        G4int               event_id;
+        G4int               p_index;
+        G4int               pdg_code;
+        G4double            energy;
+        G4ParticleMomentum  momentum;
+        G4ThreeVector       position;
+        G4ThreeVector       polarization;
+    };
+    ParticleInfo             fCurrentParticleInfo;
+    std::queue<ParticleInfo> fQueueParticleInfo;
     
 };
 
