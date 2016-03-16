@@ -26,6 +26,9 @@ cd ${g4bx2_dir}/src
 grep -q 'fIsAppliedSetEventID = false' BxOutputVertex.cc || sed -i '/BxOutputVertex::ClearAll()/ a\  fIsAppliedSetEventID = false;' BxOutputVertex.cc
 grep -q 'if ( ! BxOutputVertex::Get()->IsAppliedSetEventID() )' BxOutputVertex.cc || sed -i '/BxOutputVertex::Get()->SetEventID(evt->GetEventID());/ s//if ( ! BxOutputVertex::Get()->IsAppliedSetEventID() )  &/' BxEventAction.cc
 
+cd ${g4bx2_dir}/include
+grep -q 'GetBxGenerator' BxPrimaryGeneratorAction.hh || sed -i '/SetBxGenerator/ a\    BxVGenerator* GetBxGenerator() const {return generator;}' BxPrimaryGeneratorAction.hh
+
 cd ${g4bx2_dir}
 grep -q "TreePlayer" CMakeLists.txt || sed -i 's/\${ROOT_LIBRARIES}/& TreePlayer/g' CMakeLists.txt
 grep -q "ttree.mac" CMakeLists.txt || sed -i '/gun.mac/ a\ttree.mac' CMakeLists.txt

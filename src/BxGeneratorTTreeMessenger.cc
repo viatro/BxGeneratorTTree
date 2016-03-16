@@ -74,6 +74,10 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : ge
     fVarPositionCmd->SetGuidance("");
     fVarPositionCmd->SetGuidance("Default:    0 0 0 m");
     
+    fVarTimeCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/time", this);
+    fVarTimeCmd->SetGuidance("");
+    fVarTimeCmd->SetGuidance("Default:    0 ns");
+    
     fVarPolarizationCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/polz", this);
     fVarPolarizationCmd->SetGuidance("Polarization of particle");
     fVarPolarizationCmd->SetGuidance("Default:    0 0 0");
@@ -99,6 +103,7 @@ BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
     delete fVarEkinCmd;
     delete fVarMomentumCmd;
     delete fVarPositionCmd;
+    delete fVarTimeCmd;
     delete fVarPolarizationCmd;
 }
 
@@ -146,6 +151,9 @@ void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
     } else if (cmd == fVarPositionCmd) {
         generator->SetVarStringPosition(newValue);
         BxLog(routine) << "Position UI-Cmd is \"" << newValue << "\"" << endlog;
+    } else if (cmd == fVarTimeCmd) {
+        generator->SetVarStringTime(newValue);
+        BxLog(routine) << "Time UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarPolarizationCmd) {
         generator->SetVarStringPolarization(newValue);
         BxLog(routine) << "Polarization UI-Cmd is \"" << newValue << "\"" << endlog;

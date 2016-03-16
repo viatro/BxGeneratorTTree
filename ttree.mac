@@ -156,7 +156,11 @@
 
 #Vertex coords
 #Default:    0 0 0    m
-#/bx/generator/TTree/var/coords    x y z    m
+#/bx/generator/TTree/var/position    x y z    m
+
+#Vertex time
+#Default:    0    ns
+#/bx/generator/TTree/var/time    t    ns
 
 #Particle polarization
 #Default: none

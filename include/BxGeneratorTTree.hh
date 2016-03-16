@@ -8,20 +8,17 @@
 #ifndef _BxGeneratorTTree_HH
 #define _BxGeneratorTTree_HH
 
-#include "BxVGenerator.hh"
-
 #include "TChain.h"
 
+#include "BxVGenerator.hh"
+
 #include <vector>
-//#include <utility>
-#include <queue>
+#include <deque>
 
-
-class G4Event;
 class BxGeneratorTTreeMessenger;
-
 class TTreeFormula;
 class TTreeFormulaManager;
+class G4Event;
 
 
 class BxGeneratorTTree : public BxVGenerator {
@@ -61,29 +58,31 @@ public:
     /// Get the number of entries to be processed.
     inline G4int GetNEntries() const {return fNEntries;}
     
-    inline void SetVarStringEventId      (const G4String& a) {fVarString_EventId      = a;}
-    inline void SetVarStringEventSkip    (const G4String& a) {fVarString_EventSkip    = a;}
-    inline void SetVarStringParticleSkip (const G4String& a) {fVarString_ParticleSkip = a;}
-    inline void SetVarStringNParticles   (const G4String& a) {fVarString_NParticles   = a;}
-    inline void SetVarStringSplit        (const G4String& a) {fVarString_Split        = a;}
-    inline void SetVarStringRotateIso    (const G4String& a) {fVarString_RotateIso    = a;}
-    inline void SetVarStringPdg          (const G4String& a) {fVarString_Pdg          = a;}
-    inline void SetVarStringEkin         (const G4String& a) {fVarString_Ekin         = a;}
-    inline void SetVarStringMomentum     (const G4String& a) {fVarString_Momentum     = a;}
-    inline void SetVarStringPosition     (const G4String& a) {fVarString_Position     = a;}
-    inline void SetVarStringPolarization (const G4String& a) {fVarString_Polarization = a;}
+    void SetVarStringEventId      (const G4String& a) {fVarString_EventId      = a;}
+    void SetVarStringEventSkip    (const G4String& a) {fVarString_EventSkip    = a;}
+    void SetVarStringParticleSkip (const G4String& a) {fVarString_ParticleSkip = a;}
+    void SetVarStringNParticles   (const G4String& a) {fVarString_NParticles   = a;}
+    void SetVarStringSplit        (const G4String& a) {fVarString_Split        = a;}
+    void SetVarStringRotateIso    (const G4String& a) {fVarString_RotateIso    = a;}
+    void SetVarStringPdg          (const G4String& a) {fVarString_Pdg          = a;}
+    void SetVarStringEkin         (const G4String& a) {fVarString_Ekin         = a;}
+    void SetVarStringMomentum     (const G4String& a) {fVarString_Momentum     = a;}
+    void SetVarStringPosition     (const G4String& a) {fVarString_Position     = a;}
+    void SetVarStringTime         (const G4String& a) {fVarString_Time         = a;}
+    void SetVarStringPolarization (const G4String& a) {fVarString_Polarization = a;}
     
-    inline G4String GetVarStringEventId      () const {return fVarString_EventId     ;}
-    inline G4String GetVarStringEventSkip    () const {return fVarString_EventSkip   ;}
-    inline G4String GetVarStringParticleSkip () const {return fVarString_ParticleSkip;}
-    inline G4String GetVarStringNParticles   () const {return fVarString_NParticles  ;}
-    inline G4String GetVarStringSplit        () const {return fVarString_Split       ;}
-    inline G4String GetVarStringRotateIso    () const {return fVarString_RotateIso   ;}
-    inline G4String GetVarStringPdg          () const {return fVarString_Pdg         ;}
-    inline G4String GetVarStringEkin         () const {return fVarString_Ekin        ;}
-    inline G4String GetVarStringMomentum     () const {return fVarString_Momentum    ;}
-    inline G4String GetVarStringPosition     () const {return fVarString_Position    ;}
-    inline G4String GetVarStringPolarization () const {return fVarString_Polarization;}
+    const G4String& GetVarStringEventId      () const {return fVarString_EventId     ;}
+    const G4String& GetVarStringEventSkip    () const {return fVarString_EventSkip   ;}
+    const G4String& GetVarStringParticleSkip () const {return fVarString_ParticleSkip;}
+    const G4String& GetVarStringNParticles   () const {return fVarString_NParticles  ;}
+    const G4String& GetVarStringSplit        () const {return fVarString_Split       ;}
+    const G4String& GetVarStringRotateIso    () const {return fVarString_RotateIso   ;}
+    const G4String& GetVarStringPdg          () const {return fVarString_Pdg         ;}
+    const G4String& GetVarStringEkin         () const {return fVarString_Ekin        ;}
+    const G4String& GetVarStringMomentum     () const {return fVarString_Momentum    ;}
+    const G4String& GetVarStringPosition     () const {return fVarString_Position    ;}
+    const G4String& GetVarStringTime         () const {return fVarString_Time        ;}
+    const G4String& GetVarStringPolarization () const {return fVarString_Polarization;}
     
 //private  members
 private:
@@ -96,10 +95,6 @@ private:
     
     //G4int       fTreeNumber;
     G4int       fParticleCounter;
-    //G4int       fPostponed;     ///< 
-    
-    //std::vector<std::pair<G4int,G4int> > fPostponedInfo;
-    //std::vector<std::pair<G4int,G4int> > fPostponed;
     
     G4String    fVarString_EventId;
     G4String    fVarString_EventSkip;
@@ -111,14 +106,17 @@ private:
     G4String    fVarString_Ekin;
     G4String    fVarString_Momentum;
     G4String    fVarString_Position;
+    G4String    fVarString_Time;
     G4String    fVarString_Polarization;
     
     G4double    fVarUnit_Ekin;       ///< unit of energy
     G4double    fVarUnit_Momentum;   ///< unit of momentum
-    G4double    fVarUnit_Position;   ///< unit of coordinates
+    G4double    fVarUnit_Position;   ///< unit of position
+    G4double    fVarUnit_Time;       ///< unit of time
+    
     
     G4bool      fVarIsSet_EventId;
-    G4bool      fVarIsSet_Polarization;
+    //G4bool      fVarIsSet_Polarization;
     
     TTreeFormula* fVarTTF_EventId;         ///< sequence number of the event (the event number)
     TTreeFormula* fVarTTF_EventSkip;       ///< 
@@ -130,35 +128,74 @@ private:
     TTreeFormula* fVarTTF_Ekin;            ///< particle kinetic energy
     TTreeFormula* fVarTTF_Momentum[3];     ///< particle momentum
     TTreeFormula* fVarTTF_Position[3];     ///< event vertex position in detector coord. syst.
+    TTreeFormula* fVarTTF_Time;            ///< event time
     TTreeFormula* fVarTTF_Polarization[3]; ///< particle polarization vector
     
     TTreeFormulaManager*       fTTFmanager;
     
     G4ParticleTable*           fParticleTable;
 	G4ParticleGun*             fParticleGun;
-    G4ParticleDefinition*      fParticle;
-    G4ThreeVector*             fRotationAngles;
+    //G4ParticleDefinition*      fParticle;
     
     BxGeneratorTTreeMessenger* fMessenger;
     
-    struct PostponedInfo {
-        G4int event_id;
-        G4int p_index;
-    };
-    std::vector<PostponedInfo> fVectorPostponedInfo;
-    
+public:
     struct ParticleInfo {
         G4int               event_id;
         G4int               p_index;
         G4int               pdg_code;
         G4double            energy;
-        G4ParticleMomentum  momentum;
+        G4ThreeVector       momentum;
         G4ThreeVector       position;
+        G4double            time;
         G4ThreeVector       polarization;
+        G4int               status;
     };
-    ParticleInfo             fCurrentParticleInfo;
-    std::queue<ParticleInfo> fQueueParticleInfo;
     
+    const ParticleInfo& GetCurrentParticleInfo() const {return fCurrentParticleInfo;}
+    void  PushFrontToDeque(const ParticleInfo& particle_info) {fDequeParticleInfo.push_front(particle_info);}
+    void  PushBackToDeque(const ParticleInfo& particle_info) {fDequeParticleInfo.push_back(particle_info);}
+    
+    void PushFrontToDeque(G4int event_id, G4int p_index, G4int pdg_code,
+        G4double energy, const G4ThreeVector& momentum, const G4ThreeVector& position, G4double time,
+        const G4ThreeVector& polarization, G4int status) {
+            ParticleInfo particle_info;
+            particle_info.event_id = event_id;
+            particle_info.p_index = p_index;
+            particle_info.pdg_code = pdg_code;
+            particle_info.energy = energy;
+            particle_info.momentum = momentum;
+            particle_info.position = position;
+            particle_info.time = time;
+            particle_info.polarization = polarization;
+            particle_info.status = status;
+            fDequeParticleInfo.push_front(particle_info);
+        }
+    
+    void PushBackToDeque(G4int event_id, G4int p_index, G4int pdg_code,
+        G4double energy, const G4ThreeVector& momentum, const G4ThreeVector& position, G4double time,
+        const G4ThreeVector& polarization, G4int status) {
+            ParticleInfo particle_info;
+            particle_info.event_id = event_id;
+            particle_info.p_index = p_index;
+            particle_info.pdg_code = pdg_code;
+            particle_info.energy = energy;
+            particle_info.momentum = momentum;
+            particle_info.position = position;
+            particle_info.time = time;
+            particle_info.polarization = polarization;
+            particle_info.status = status;
+            fDequeParticleInfo.push_back(particle_info);
+        }
+    
+    
+private:
+    void FillDequeFromEntry(G4int entry_number);
+    
+    ParticleInfo               fCurrentParticleInfo;
+    std::deque<ParticleInfo>   fDequeParticleInfo;
+    
+    std::vector<G4int>         fPrimaryIndexes;
 };
 
 #endif
