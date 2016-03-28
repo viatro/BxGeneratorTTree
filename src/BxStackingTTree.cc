@@ -57,7 +57,7 @@
 
 using namespace std;
 
-BxStackingTTree::BxStackingTTree() : fCurrentPrimaryNumber(0), fIsFirst(true), fMode(0x1)/*TODO: change to 0 when Manager*/ {
+BxStackingTTree::BxStackingTTree() : fCurrentPrimaryNumber(0), fIsFirst(true), fMode(0b001)/*TODO: change to 0 when Manager*/ {
     BxLog(routine) << "TTree Stacking Methode Active" << endlog;
 }
 
@@ -91,8 +91,10 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                 generator->PushFrontToDeque(particle_info);
                 
                 return fKill;
-            } else if (fMode.test(1) && creator->GetProcessName() == "RadioactiveDecay") {
-                
+            } else if (fMode.test(1)) {
+                if (creator->GetProcessName() == "RadioactiveDecay") {
+                    
+                }
             } else if (fMode.test(2)) {
                 
             }

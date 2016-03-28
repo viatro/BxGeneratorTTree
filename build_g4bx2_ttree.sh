@@ -28,6 +28,12 @@ grep -q 'if ( ! BxOutputVertex::Get()->IsAppliedSetEventID() )' BxOutputVertex.c
 
 cd ${g4bx2_dir}/include
 grep -q 'GetBxGenerator' BxPrimaryGeneratorAction.hh || sed -i '/SetBxGenerator/ a\    BxVGenerator* GetBxGenerator() const {return generator;}' BxPrimaryGeneratorAction.hh
+cd ${g4bx2_dir}/src
+if ! grep -q "BxGeneratorTTree" BxStackingActionMessenger.cc; then
+	sed -i '/#include \"BxStackingNeutron.hh\"/ a\ #include "BxStackingTTree.hh"' BxStackingActionMessenger.cc
+	sed -i '/fSelectCmd->SetCandidates/ i\  candidates += " TTree";' BxStackingActionMessenger.cc
+	sed -i '/newValue == \"Neutron\"/ a\    else if (newValue == "TTree")  fStacking->SetBxStackingAction(new BxStackingTTree);' BxStackingActionMessenger.cc
+fi
 
 cd ${g4bx2_dir}
 grep -q "TreePlayer" CMakeLists.txt || sed -i 's/\${ROOT_LIBRARIES}/& TreePlayer/g' CMakeLists.txt
@@ -36,5 +42,16 @@ source please_source_me
 
 cd ${g4bx2_dir}/build
 cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/ ../. &&
+make -j 8
+
+#TEMPORARY! Until bugfix
+cd ${offline_dir}/Echidna/event
+if ! grep -q 'false && write_flag > 1' BxEvent.cc; then
+	sed -i '/write_flag > 1/ s//false \&\& &/' BxEvent.cc
+	sed -i '/false && write_flag > 1/ i\        for (int j = 0; j < e.get_frame(i).get_n_users(); j++)  users.push_back(BxMcTruthUser(i+1, e.get_frame(i).get_user(j)));' BxEvent.cc
+fi
+cd ${offline_dir}/Echidna
+make clean
+. /opt/exp_software/borexino/root32/v5-34-24/bin/thisroot.sh
 make -j 8
 

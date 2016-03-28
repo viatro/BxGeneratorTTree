@@ -35,6 +35,8 @@
 #include "G4ClassificationOfNewTrack.hh"
 #include "G4UserStackingAction.hh"
 
+#include <bitset>
+
 class BxGeneratorTTree;
 //class BxStackingTTreeMessenger;
 class G4StackManager;
@@ -46,8 +48,7 @@ class G4Track;
 *   of G4Track objects.
 */
 
-class BxStackingTTree : public BxVStackingAction
-{
+class BxStackingTTree : public BxVStackingAction {
 public:
     BxStackingTTree();
     virtual ~BxStackingTTree();
@@ -81,52 +82,54 @@ public: // with description
     //---------------------------------------------------------------
     //
     /**
-*    This method is called by G4StackManager when the urgentStack
-*  becomes empty and contents in the waitingStack are transtered
-*  to the urgentStack.
-*    Note that this method is not called at the begining of each
-*  event, but "PrepareNewEvent" is called.
-*
-*    In case re-classification of the stacked tracks is needed,
-*  use the following method to request to G4StackManager.
-*
-*    stackManager->ReClassify();
-*
-*    All of the stacked tracks in the waitingStack will be re-classified 
-*  by "ClassifyNewTrack" method.
-*    To abort current event, use the following method.
-*
-*    stackManager->clear();
-*
-*    Note that this way is valid and safe only for the case it is called
-*  from this user class. The more global way of event abortion is
-*
-*    G4UImanager * UImanager = G4UImanager::GetUIpointer();
-*    UImanager->ApplyCommand("/event/abort");
-*/
+    *    This method is called by G4StackManager when the urgentStack
+    *  becomes empty and contents in the waitingStack are transtered
+    *  to the urgentStack.
+    *    Note that this method is not called at the begining of each
+    *  event, but "PrepareNewEvent" is called.
+    *
+    *    In case re-classification of the stacked tracks is needed,
+    *  use the following method to request to G4StackManager.
+    *
+    *    stackManager->ReClassify();
+    *
+    *    All of the stacked tracks in the waitingStack will be re-classified 
+    *  by "ClassifyNewTrack" method.
+    *    To abort current event, use the following method.
+    *
+    *    stackManager->clear();
+    *
+    *    Note that this way is valid and safe only for the case it is called
+    *  from this user class. The more global way of event abortion is
+    *
+    *    G4UImanager * UImanager = G4UImanager::GetUIpointer();
+    *    UImanager->ApplyCommand("/event/abort");
+    */
     virtual void BxNewStage();
     //---------------------------------------------------------------
     //
     /**
-*    This method is called by G4StackManager at the begining of
-*  each event.
-*    Be careful that the urgentStack and the waitingStack of 
-*  G4StackManager are empty at this moment, because this method
-*  is called before accepting primary particles. Also, note that
-*  the postponeStack of G4StackManager may have some postponed
-*  tracks.
-*/
+    *    This method is called by G4StackManager at the begining of
+    *  each event.
+    *    Be careful that the urgentStack and the waitingStack of 
+    *  G4StackManager are empty at this moment, because this method
+    *  is called before accepting primary particles. Also, note that
+    *  the postponeStack of G4StackManager may have some postponed
+    *  tracks.
+    */
     virtual void BxPrepareNewEvent();
     //---------------------------------------------------------------
     
-private:
+    void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
     
+private:
     //BxStackingTTreeMessenger  *fMessenger ;
     
     G4int  fCurrentPrimaryNumber;
     BxGeneratorTTree* generator;
-    G4bool isFirst;
-
+    G4bool fIsFirst;
+    
+    std::bitset<3> fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
 };
 
 #endif

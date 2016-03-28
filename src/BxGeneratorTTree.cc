@@ -437,7 +437,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
                 else if (loadedEntry == -3) BxLog(fatal/*error*/) << "The file corresponding to the entry could not be correctly open" << endlog;
                 else if (loadedEntry == -4) BxLog(fatal/*error*/) << "The TChainElement corresponding to the entry is missing or the TTree is missing from the file"  << endlog;
             }
-        } while (!(fTTFmanager->GetNdata() <= 0 || fVarTTF_EventSkip->EvalInstance64(0)));
+        } while (fTTFmanager->GetNdata() <= 0 || fVarTTF_EventSkip->EvalInstance64(0));
         
         FillDequeFromEntry(fCurrentEntry);
     }
@@ -490,10 +490,12 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         BxLog(trace) << "  Entry " << fCurrentEntry
                     << ", event_id = " << fCurrentParticleInfo.event_id
                     << " : particle #" << fCurrentParticleInfo.p_index
+                    << (fCurrentParticleInfo.status > 0 ? ", POSTPONED" : "")
                     << " : " << fParticle->GetParticleName()
                     << "\t=>" << endlog;
         BxLog(trace) << "    Ekin = " << G4BestUnit(fCurrentParticleInfo.energy, "Energy") << endlog;
         BxLog(trace) << "    direction = " << fCurrentParticleInfo.momentum << endlog;
         BxLog(trace) << "    position = " << G4BestUnit(fCurrentParticleInfo.position, "Length") << endlog;
-    } while (fVarTTF_Split->EvalInstance64(0) && !fDequeParticleInfo.empty());
+        BxLog(trace) << "    time = " << G4BestUnit(fCurrentParticleInfo.time, "Time") << endlog;
+    } while (!fVarTTF_Split->EvalInstance64(0) && !fDequeParticleInfo.empty());
 }
