@@ -449,9 +449,9 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         fCurrentParticleInfo = fDequeParticleInfo.front();
         fDequeParticleInfo.pop_front();
         
-        //if (fCurrentParticleInfo.status != 0)  {
-        //    if (fCurrentSplitMode)  fCurrentParticleInfo.p_index = fPrimaryIndexes.back();
-        //}
+        if (fCurrentParticleInfo.status != 0)  {
+            if (fCurrentSplitMode == false)  fCurrentParticleInfo.p_index = fPrimaryIndexes[fCurrentParticleInfo.p_index - 1];
+        }
         
         G4ParticleDefinition* fParticle = fParticleTable->FindParticle(fCurrentParticleInfo.pdg_code);
         if (!fParticle) {

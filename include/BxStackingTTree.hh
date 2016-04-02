@@ -127,12 +127,7 @@ private:
     BxGeneratorTTree* generator;
     //BxStackingTTreeMessenger  *fMessenger ;
     G4bool fIsFirst;
-    std::map<G4int, G4bool>  fPrimaries;
     std::bitset<3> fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
-    G4int calls;
-    G4int fCurrentPrimaryTrackID;
-    
-    G4int PrimariesCounter();
 };
 
 #endif
