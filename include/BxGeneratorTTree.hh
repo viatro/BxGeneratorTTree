@@ -84,6 +84,8 @@ public:
     const G4String& GetVarStringTime         () const {return fVarString_Time        ;}
     const G4String& GetVarStringPolarization () const {return fVarString_Polarization;}
     
+    G4bool GetCurrentSplitMode() {return fCurrentSplitMode;}
+    
 //private  members
 private:
     TChain*     fTreeChain;     ///< event tree that contains the events.
@@ -131,6 +133,8 @@ private:
     TTreeFormula* fVarTTF_Time;            ///< event time
     TTreeFormula* fVarTTF_Polarization[3]; ///< particle polarization vector
     
+    G4bool                     fCurrentSplitMode;
+    
     TTreeFormulaManager*       fTTFmanager;
     
     G4ParticleTable*           fParticleTable;
@@ -170,7 +174,7 @@ public:
             particle_info.polarization = polarization;
             particle_info.status = status;
             fDequeParticleInfo.push_front(particle_info);
-        }
+    }
     
     void PushBackToDeque(G4int event_id, G4int p_index, G4int pdg_code,
         G4double energy, const G4ThreeVector& momentum, const G4ThreeVector& position, G4double time,
@@ -186,15 +190,13 @@ public:
             particle_info.polarization = polarization;
             particle_info.status = status;
             fDequeParticleInfo.push_back(particle_info);
-        }
-    
+    }
     
 private:
     void FillDequeFromEntry(G4int entry_number);
     
     ParticleInfo               fCurrentParticleInfo;
     std::deque<ParticleInfo>   fDequeParticleInfo;
-    
     std::vector<G4int>         fPrimaryIndexes;
 };
 

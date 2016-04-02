@@ -45,6 +45,7 @@ BxGeneratorTTree::BxGeneratorTTree() :
     , fVarUnit_Time(ns)
     , fVarIsSet_EventId(false)
     //, fVarIsSet_Polarization(false)
+    , fCurrentSplitMode(false)
     , fCurrentParticleInfo()
     , fDequeParticleInfo()
     , fPrimaryIndexes()
@@ -361,7 +362,6 @@ void BxGeneratorTTree::FillDequeFromEntry(G4int entry_number) {
     for (G4int i = 0; i < fVarTTF_NParticles->EvalInstance64(0); ++i) {
         if (fVarTTF_ParticleSkip->EvalInstance64(i))  continue;
         particle_info.p_index = i;
-        fPrimaryIndexes.push_back(i);
         
         particle_info.pdg_code = fVarTTF_Pdg->EvalInstance64(i);
         G4ParticleDefinition* fParticle = fParticleTable->FindParticle(particle_info.pdg_code);
@@ -406,6 +406,7 @@ void BxGeneratorTTree::FillDequeFromEntry(G4int entry_number) {
         
         particle_info.status = 0;
         
+        fPrimaryIndexes.push_back(i);
         fDequeParticleInfo.push_back(particle_info);
     }
 }
@@ -442,9 +443,15 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         FillDequeFromEntry(fCurrentEntry);
     }
     
+    fCurrentSplitMode = fVarTTF_Split->EvalInstance64(0);
+    
     do {
         fCurrentParticleInfo = fDequeParticleInfo.front();
         fDequeParticleInfo.pop_front();
+        
+        //if (fCurrentParticleInfo.status != 0)  {
+        //    if (fCurrentSplitMode)  fCurrentParticleInfo.p_index = fPrimaryIndexes.back();
+        //}
         
         G4ParticleDefinition* fParticle = fParticleTable->FindParticle(fCurrentParticleInfo.pdg_code);
         if (!fParticle) {
@@ -455,7 +462,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
                             << " : particle #" << fParticleCounter
                             << " : WARNING!" << endlog;
                 BxLog(warning) << "  Skipping unknown particle with PDG code " << fCurrentParticleInfo.pdg_code << endlog;
-                if (fVarTTF_Split->EvalInstance64(0))  event->SetEventAborted();
+                if (fCurrentSplitMode)  event->SetEventAborted();
                 continue;
             //}
         }
@@ -472,7 +479,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         BxOutputVertex::Get()->SetUserInt1(fCurrentParticleInfo.p_index);
         BxOutputVertex::Get()->SetUserInt2(fCurrentParticleInfo.status);
         BxOutputVertex::Get()->SetUsers();
-        if (fVarTTF_Split->EvalInstance64(0)) {
+        if (fCurrentSplitMode) {
             BxOutputVertex::Get()->SetPDG(fCurrentParticleInfo.pdg_code);
             BxOutputVertex::Get()->SetEnergy(fCurrentParticleInfo.energy/MeV);
             BxOutputVertex::Get()->SetDirection(fCurrentParticleInfo.momentum);
@@ -497,5 +504,5 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         BxLog(trace) << "    direction = " << fCurrentParticleInfo.momentum << endlog;
         BxLog(trace) << "    position = " << G4BestUnit(fCurrentParticleInfo.position, "Length") << endlog;
         BxLog(trace) << "    time = " << G4BestUnit(fCurrentParticleInfo.time, "Time") << endlog;
-    } while (!fVarTTF_Split->EvalInstance64(0) && !fDequeParticleInfo.empty());
+    } while (!fCurrentSplitMode && !fDequeParticleInfo.empty());
 }

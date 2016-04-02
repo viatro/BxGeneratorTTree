@@ -36,6 +36,7 @@
 #include "G4UserStackingAction.hh"
 
 #include <bitset>
+#include <map>
 
 class BxGeneratorTTree;
 //class BxStackingTTreeMessenger;
@@ -123,13 +124,15 @@ public: // with description
     void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
     
 private:
-    //BxStackingTTreeMessenger  *fMessenger ;
-    
-    G4int  fCurrentPrimaryNumber;
     BxGeneratorTTree* generator;
+    //BxStackingTTreeMessenger  *fMessenger ;
     G4bool fIsFirst;
-    
+    std::map<G4int, G4bool>  fPrimaries;
     std::bitset<3> fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
+    G4int calls;
+    G4int fCurrentPrimaryTrackID;
+    
+    G4int PrimariesCounter();
 };
 
 #endif
