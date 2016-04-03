@@ -1,3 +1,10 @@
+// -------------------------------------------------- //
+/** 
+ * AUTHOR: adapted from http://geant4.slac.stanford.edu/Tips/event/1.html by V. Atroshchenko
+ * CONTACT: victor.atroshchenko@lngs.infn.it
+*/
+// -------------------------------------------------- //
+
 #ifndef BxTrackInformation_h
 #define BxTrackInformation_h 1
 
