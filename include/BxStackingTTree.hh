@@ -18,7 +18,7 @@
 #include <map>
 
 class BxGeneratorTTree;
-//class BxStackingTTreeMessenger;
+class BxStackingTTreeMessenger;
 class G4StackManager;
 class G4Track;
 
@@ -103,10 +103,10 @@ public: // with description
     void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
     
 private:
-    BxGeneratorTTree* generator;
-    //BxStackingTTreeMessenger  *fMessenger ;
-    G4bool fIsFirst;
-    std::bitset<3> fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
+    BxGeneratorTTree*         fGenerator;
+    BxStackingTTreeMessenger* fMessenger;
+    G4bool                    fIsFirst;
+    std::bitset<3>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
 };
 
 #endif

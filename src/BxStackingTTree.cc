@@ -6,6 +6,7 @@
 // -------------------------------------------------- //
 
 #include "BxStackingTTree.hh"
+#include "BxStackingTTreeMessenger.hh"
 #include "BxPrimaryGeneratorAction.hh"
 #include "BxGeneratorTTree.hh"
 #include "BxTrackInformation.hh"
@@ -19,7 +20,8 @@
 
 using namespace std;
 
-BxStackingTTree::BxStackingTTree() : fIsFirst(true), fMode(1)/*TODO: change to empty when Manager*/ {
+BxStackingTTree::BxStackingTTree() : fIsFirst(true), fMode() {
+    fMessenger = new BxStackingTTreeMessenger(this);
     BxLog(routine) << "TTree Stacking Method Active" << endlog;
 }
 
@@ -36,9 +38,9 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
         
         if (fMode.test(0)) {
             if (creator->GetProcessName() == "nCapture" && particleDef->GetParticleName() == "gamma") {
-                BxGeneratorTTree::ParticleInfo particle_info = generator->GetCurrentParticleInfo();
+                BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
                 
-                if (!generator->GetCurrentSplitMode()) {
+                if (!fGenerator->GetCurrentSplitMode()) {
                     BxTrackInformation* track_info = static_cast<BxTrackInformation*>(aTrack->GetUserInformation());
                     if (track_info)  particle_info.p_index = track_info->GetPrimaryTrackID();
                 }
@@ -51,7 +53,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                 particle_info.polarization = aTrack->GetPolarization();
                 particle_info.status = 1;
                 
-                generator->PushFrontToDeque(particle_info);
+                fGenerator->PushFrontToDeque(particle_info);
                 
                 return fKill;
             }
@@ -72,8 +74,8 @@ void BxStackingTTree::BxNewStage() {;}
 
 void BxStackingTTree::BxPrepareNewEvent() {
     if (fIsFirst) {
-        generator = dynamic_cast<BxGeneratorTTree*>(static_cast<const BxPrimaryGeneratorAction*>(BxManager::Get()->GetUserPrimaryGeneratorAction())->GetBxGenerator());
-        if (!generator) {
+        fGenerator = dynamic_cast<BxGeneratorTTree*>(static_cast<const BxPrimaryGeneratorAction*>(BxManager::Get()->GetUserPrimaryGeneratorAction())->GetBxGenerator());
+        if (!fGenerator) {
             BxLog(error) << "TTree stacking can be used only with TTree generator!" << endlog;
             BxLog(fatal) << "FATAL" << endlog;
         }

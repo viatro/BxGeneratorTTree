@@ -11,13 +11,12 @@
 #include "G4UImessenger.hh"
 
 class BxGeneratorTTree;
-class BxPrimaryGeneratorAction;
 class G4UIcommand;
 class G4UIdirectory;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
 
-///Messenger for BxGeneratorTTreeMessenger
+///Messenger for BxGeneratorTTree
 class BxGeneratorTTreeMessenger: public G4UImessenger {
 
     public:
@@ -29,7 +28,7 @@ class BxGeneratorTTreeMessenger: public G4UImessenger {
         void SetNewValue(G4UIcommand*, G4String);
             
     private:
-        BxGeneratorTTree*       generator;   
+        BxGeneratorTTree*       fGenerator;
         G4UIdirectory*       	fDirectory;
         G4UIcmdWithAString*  	fInputFileNameCmd;
 		G4UIcmdWithAString*  	fTreeNameCmd;

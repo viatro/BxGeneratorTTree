@@ -14,7 +14,7 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithAnInteger.hh"
 
-BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : generator(gen) {
+BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : fGenerator(gen) {
     fDirectory = new G4UIdirectory("/bx/generator/TTree/");
     fDirectory->SetGuidance("Control of TTree event generator");
     
@@ -85,7 +85,6 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : ge
     BxLog(warning) << "BxGeneratorTTreeMessenger built" << endlog;
 }
 
-
 BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
     delete fDirectory;
     delete fInputFileNameCmd;
@@ -107,55 +106,54 @@ BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {
     delete fVarPolarizationCmd;
 }
 
-
 void BxGeneratorTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue) {
     if (cmd == fInputFileNameCmd) {
-        generator->AddInputFileName(newValue);
+        fGenerator->AddInputFileName(newValue);
         BxLog(routine) << "Added input ROOT file \"" << newValue << "\"" << endlog;
     } else if (cmd == fTreeNameCmd) {
-        generator->SetTreeName(newValue);
+        fGenerator->SetTreeName(newValue);
         BxLog(routine) << "Tree(Chain) name is \"" << newValue << "\"" << endlog;
     } else if (cmd == fFirstEntryCmd) {
-        generator->SetFirstEntry(fFirstEntryCmd->ConvertToInt(newValue));
+        fGenerator->SetFirstEntry(fFirstEntryCmd->ConvertToInt(newValue));
 	    BxLog(routine) << "First entry to be processed is " << newValue  << endlog;
     } else if (cmd == fNEntriesCmd) {
-        generator->SetNEntries(fNEntriesCmd->ConvertToInt(newValue));
+        fGenerator->SetNEntries(fNEntriesCmd->ConvertToInt(newValue));
 	    BxLog(routine) << "Number of entries to be processed is " << newValue << (fNEntriesCmd->ConvertToInt(newValue) == 0 ? ". Zero means \"all\"" : "") << endlog;
     } else if (cmd == fVarEventIdCmd) {
-        generator->SetVarStringEventId(newValue);
+        fGenerator->SetVarStringEventId(newValue);
         BxLog(routine) << "Event Id UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarEventSkipCmd) {
-        generator->SetVarStringEventSkip(newValue);
+        fGenerator->SetVarStringEventSkip(newValue);
         BxLog(routine) << "Event skip UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarParticleSkipCmd) {
-        generator->SetVarStringParticleSkip(newValue);
+        fGenerator->SetVarStringParticleSkip(newValue);
         BxLog(routine) << "Particle skip UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarNParticlesCmd) {
-        generator->SetVarStringNParticles(newValue);
+        fGenerator->SetVarStringNParticles(newValue);
         BxLog(routine) << "Number of particles UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarSplitCmd) {
-        generator->SetVarStringSplit(newValue);
+        fGenerator->SetVarStringSplit(newValue);
         BxLog(routine) << "Split UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarRotateIsoCmd) {
-        generator->SetVarStringRotateIso(newValue);
+        fGenerator->SetVarStringRotateIso(newValue);
         BxLog(routine) << "RotateIso UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarPdgCmd) {
-        generator->SetVarStringPdg(newValue);
+        fGenerator->SetVarStringPdg(newValue);
         BxLog(routine) << "PDG UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarEkinCmd) {
-        generator->SetVarStringEkin(newValue);
+        fGenerator->SetVarStringEkin(newValue);
         BxLog(routine) << "Kinetic energy UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarMomentumCmd) {
-        generator->SetVarStringMomentum(newValue);
+        fGenerator->SetVarStringMomentum(newValue);
         BxLog(routine) << "Momentum/direction UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarPositionCmd) {
-        generator->SetVarStringPosition(newValue);
+        fGenerator->SetVarStringPosition(newValue);
         BxLog(routine) << "Position UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarTimeCmd) {
-        generator->SetVarStringTime(newValue);
+        fGenerator->SetVarStringTime(newValue);
         BxLog(routine) << "Time UI-Cmd is \"" << newValue << "\"" << endlog;
     } else if (cmd == fVarPolarizationCmd) {
-        generator->SetVarStringPolarization(newValue);
+        fGenerator->SetVarStringPolarization(newValue);
         BxLog(routine) << "Polarization UI-Cmd is \"" << newValue << "\"" << endlog;
     }
 }

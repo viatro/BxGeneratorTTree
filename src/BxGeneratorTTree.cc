@@ -78,7 +78,7 @@ BxGeneratorTTree::BxGeneratorTTree() :
     fParticleTable = G4ParticleTable::GetParticleTable();
     fParticleGun = new G4ParticleGun();
     
-    fMessenger  = new BxGeneratorTTreeMessenger(this);
+    fMessenger = new BxGeneratorTTreeMessenger(this);
     
     BxLog(warning) << "BxGeneratorTTree built" << endlog;
 }
