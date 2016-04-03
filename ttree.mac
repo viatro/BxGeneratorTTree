@@ -76,20 +76,20 @@
 /bx/generator/select TTree
 
 #Set Tree name
-/bx/generator/TTree/tree_name    tree
+/bx/generator/ttree/tree_name    tree
 
 #Add input ROOT file (full path with extension)
 #NOTE: use this command several times to add more than one file. '*' is also supported
-/bx/generator/TTree/add_input_file    ~/storage/input_file.root
+/bx/generator/ttree/add_input_file    ~/storage/input_file.root
 
 #Set first TTree(Chain) entry number to be processed
 #Default:    0
-/bx/generator/TTree/first_entry    0
+/bx/generator/ttree/first_entry    0
 
 #Set number of TTree(Chain) entries to be processed
 #WARNING! Do NOT change /run/beamOn value from 2^32-1. Use this command instead.
 #Default:    all
-/bx/generator/TTree/n_entries    10
+/bx/generator/ttree/n_entries    10
 
 #Uncomment for change default variables names.
 #Argument is the variables names in input Tree with unit.
@@ -97,9 +97,9 @@
 #They will be used for all simulated events.
 #In this case, such branches in input Tree are not needed.
 #It is also possible to mix names and exact values
-#(e.g. /bx/generator/TTree/coords    particle.x  particle.y  0.5    m)
+#(e.g. /bx/generator/ttree/position    particle.x  particle.y  0.5    m)
 #Any expression that is working in TTree::Draw() can be used (even special, like Sum$, see docs of TTree::Draw()).
-#WARNING! If there are more than one tokens assumed (as for energy, momentum, coords, polarization),
+#WARNING! If there are more than one tokens assumed (as for energy, momentum, position, polarization),
 #         DO NOT use whitespaces or tabs inside , because they are tokens separators.
 #BONUS: If there are only exact values everywhere in /var/ below,
 #       commands /tree_name, /add_input_file above and file(s) with TTree are not needed
@@ -107,64 +107,64 @@
 #Event id number
 #WARNING! Do not use exact number here!
 #Default: Tree(Chain) entry number
-#/bx/generator/TTree/var/event_id    iev
+#/bx/generator/ttree/var/event_id    iev
 
 #Skip event if condition (boolean expression) is true.
 #NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
 #Example: skip event if particles PDG array contains mu- or mu+:
 #         /event_skip_if    Sum$(p.pdg==13 || p.pdg==-13) > 0
 #Default:    0
-#/bx/generator/TTree/var/event_skip_if    event_condition
+#/bx/generator/ttree/var/event_skip_if    event_condition
 
 #Skip particle if condition (boolean expression) is true.
 #NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
 #Example: skip event if particle is mu- or mu+:
 #         /event_skip_if    p.pdg==13 || p.pdg==-13
 #Default:    0
-#/bx/generator/TTree/var/particle_skip_if    particle_condition
+#/bx/generator/ttree/var/particle_skip_if    particle_condition
 
 #Number of particles per Tree entry
 #Default:    1
-#/bx/generator/TTree/var/n_particles    n
+#/bx/generator/ttree/var/n_particles    n
 
 #Split particles to separate events.
 #NOTE: particles within one TTree(Chain) entry will be simulated as & written into separate events, but with same EventID
 #NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
 #Default:    0
-#/bx/generator/TTree/var/split    1
+#/bx/generator/ttree/var/split    1
 
 #Rotate whole event to a random angle
 #Can be used to obtain isotropic particle source when all 3 components in Momentum/direction are exact values, like default  0 0 1  MeV.
 #NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
 #Default:    0
-/bx/generator/TTree/var/rotate_iso    0
+/bx/generator/ttree/var/rotate_iso    0
 
 #PDG code
 #Default: 22
-#/bx/generator/TTree/var/pdg    pdg
+#/bx/generator/ttree/var/pdg    pdg
 
 #Kinetic energy
 #Note: see Momentum/direction
 #Default:    1    MeV
-#/bx/generator/TTree/var/Ekin    E    MeV
+#/bx/generator/ttree/var/Ekin    E    MeV
 
 #Momentum/direction
 #NOTE: if value of Ekin < 0 (in mac-file or/and in input TTree), (px,py,pz)-vector is used as 3-momentum vector.
 #      Otherwise (px,py,pz)-vector is normalized and used as direction vector.
 #Default:    0 0 1    MeV
-#/bx/generator/TTree/var/momentum    px py pz    MeV
+#/bx/generator/ttree/var/momentum    px py pz    MeV
 
-#Vertex coords
+#Vertex position
 #Default:    0 0 0    m
-#/bx/generator/TTree/var/position    x y z    m
+#/bx/generator/ttree/var/position    x y z    m
 
 #Vertex time
 #Default:    0    ns
-#/bx/generator/TTree/var/time    t    ns
+#/bx/generator/ttree/var/time    t    ns
 
 #Particle polarization
 #Default: none
-#/bx/generator/TTree/var/polz    polz_x polz_y polz_z
+#/bx/generator/ttree/var/polz    polz_x polz_y polz_z
 
 # ===== End of Generator setup =====
 
@@ -173,5 +173,5 @@
 /run/filename BxGeneratorTTree_test
 
 #WARNING! DO NOT EDIT ! G4int max for 32bit: 2^32-1
-#         Use /bx/generator/TTree/n_entries command instead.
+#         Use /bx/generator/ttree/n_entries command instead.
 /run/beamOn 2147483647

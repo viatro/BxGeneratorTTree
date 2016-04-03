@@ -15,70 +15,70 @@
 #include "G4UIcmdWithAnInteger.hh"
 
 BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : fGenerator(gen) {
-    fDirectory = new G4UIdirectory("/bx/generator/TTree/");
+    fDirectory = new G4UIdirectory("/bx/generator/ttree/");
     fDirectory->SetGuidance("Control of TTree event generator");
     
-    fInputFileNameCmd = new G4UIcmdWithAString("/bx/generator/TTree/add_input_file", this);
+    fInputFileNameCmd = new G4UIcmdWithAString("/bx/generator/ttree/add_input_file", this);
     fInputFileNameCmd->SetGuidance("Add input ROOT file (name with extension)");
     
-    fTreeNameCmd = new G4UIcmdWithAString("/bx/generator/TTree/tree_name", this);
+    fTreeNameCmd = new G4UIcmdWithAString("/bx/generator/ttree/tree_name", this);
     fTreeNameCmd->SetGuidance("Set Tree(Chain) name");
     
-    fFirstEntryCmd = new G4UIcmdWithAnInteger("/bx/generator/TTree/first_entry", this);
+    fFirstEntryCmd = new G4UIcmdWithAnInteger("/bx/generator/ttree/first_entry", this);
     fFirstEntryCmd->SetGuidance("Set first TTree(Chain) entry number to be processed");
     fFirstEntryCmd->SetGuidance("Default:    0");
     
-    fNEntriesCmd = new G4UIcmdWithAnInteger("/bx/generator/TTree/n_entries", this);
+    fNEntriesCmd = new G4UIcmdWithAnInteger("/bx/generator/ttree/n_entries", this);
     fNEntriesCmd->SetGuidance("Set number of TTree(Chain) entries to be processed");
     fNEntriesCmd->SetGuidance("Default:    all");
     
-    fVarDirectoryCmd = new G4UIdirectory("/bx/generator/TTree/var/");
+    fVarDirectoryCmd = new G4UIdirectory("/bx/generator/ttree/var/");
     fVarDirectoryCmd->SetGuidance("Control of variables");
     
-    fVarEventIdCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/event_id", this);
+    fVarEventIdCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/event_id", this);
     fVarEventIdCmd->SetGuidance("");
     
-    fVarEventSkipCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/event_skip_if", this);
+    fVarEventSkipCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/event_skip_if", this);
     fVarEventSkipCmd->SetGuidance("");
     fVarEventSkipCmd->SetGuidance("Default:    0");
     
-    fVarParticleSkipCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/particle_skip_if", this);
+    fVarParticleSkipCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/particle_skip_if", this);
     fVarParticleSkipCmd->SetGuidance("");
     fVarParticleSkipCmd->SetGuidance("Default:    0");
     
-    fVarNParticlesCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/n_particles", this);
+    fVarNParticlesCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/n_particles", this);
     fVarNParticlesCmd->SetGuidance("Number of particles per Tree entry");
     fVarNParticlesCmd->SetGuidance("Default:    1");
     
-    fVarSplitCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/split", this);
+    fVarSplitCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/split", this);
     fVarSplitCmd->SetGuidance("");
     fVarSplitCmd->SetGuidance("Default:    0");
     
-    fVarRotateIsoCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/rotate_iso", this);
+    fVarRotateIsoCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/rotate_iso", this);
     fVarRotateIsoCmd->SetGuidance("");
     fVarRotateIsoCmd->SetGuidance("Default:    0");
     
-    fVarPdgCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/pdg", this);
+    fVarPdgCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/pdg", this);
     fVarPdgCmd->SetGuidance("PDG code of particle");
     fVarPdgCmd->SetGuidance("Default:    22");
     
-    fVarEkinCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/Ekin", this);
+    fVarEkinCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/Ekin", this);
     fVarEkinCmd->SetGuidance("Kinetic energy of particle");
     fVarEkinCmd->SetGuidance("Default:    1 MeV");
     
-    fVarMomentumCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/momentum", this);
+    fVarMomentumCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/momentum", this);
     fVarMomentumCmd->SetGuidance("Momentum/direction of particle");
     fVarMomentumCmd->SetGuidance("Default:    0 0 1 MeV");
     
-    fVarPositionCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/position", this);
+    fVarPositionCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/position", this);
     fVarPositionCmd->SetGuidance("");
     fVarPositionCmd->SetGuidance("Default:    0 0 0 m");
     
-    fVarTimeCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/time", this);
+    fVarTimeCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/time", this);
     fVarTimeCmd->SetGuidance("");
     fVarTimeCmd->SetGuidance("Default:    0 ns");
     
-    fVarPolarizationCmd = new G4UIcmdWithAString("/bx/generator/TTree/var/polz", this);
+    fVarPolarizationCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/polz", this);
     fVarPolarizationCmd->SetGuidance("Polarization of particle");
     fVarPolarizationCmd->SetGuidance("Default:    0 0 0");
     
