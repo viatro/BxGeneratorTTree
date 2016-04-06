@@ -3,7 +3,7 @@
 offline_dir="`readlink -e $1`"
 g4bx2_dir=${offline_dir}/bxmc/g4bx2
 
-rsync -hhruP --exclude '*.sh' --exclude '.git' --exclude '.gitignore' --exclude 'README.md' ${BXUSERS}/viatro/BxGeneratorTTree/ ${g4bx2_dir}/
+rsync -hhruP --exclude '*.sh' --exclude '*.root' --exclude '.git' --exclude '.gitignore' --exclude 'README.md' $(pwd)/ ${g4bx2_dir}/
 
 cd ${g4bx2_dir}/src
 if ! grep -q 'BxGeneratorTTree' BxPrimaryGeneratorActionMessenger.cc; then
