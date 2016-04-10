@@ -27,25 +27,15 @@ public:
     inline void operator delete(void *aTrackInfo);
     inline int operator ==(const BxTrackInformation& right) const { return (this==&right); }
 
-    void Print() const {
-        G4cout << "Primary track ID " << fPrimaryTrackID /*<< " at " << fPrimaryPosition*/ << G4endl;
-    }
+    void Print() const { G4cout << "Primary track ID " << fPrimaryTrackID << G4endl; }
+    
+    inline G4int GetPrimaryTrackID() const { return fPrimaryTrackID; }
+    //inline G4int GetParentPDGEncoding() const { return fParentPDGEncoding; }
+    //inline void  SetParentPDGEncoding(G4int a) { fParentPDGEncoding = a; }
 
 private:
-    G4int                 fPrimaryTrackID;
-    //G4ParticleDefinition* fPrimaryParticleDefinition;
-    //G4ThreeVector         fPrimaryPosition;
-    //G4ThreeVector         fPrimaryMomentum;
-    //G4double              fPrimaryEnergy;
-    //G4double              fPrimaryTime;
-
-public:
-    inline G4int GetPrimaryTrackID() const { return fPrimaryTrackID; }
-    //inline G4ParticleDefinition* GetPrimaryParticle() const { return fPrimaryParticleDefinition; }
-    //inline G4ThreeVector GetPrimaryPosition() const { return fPrimaryPosition; }
-    //inline G4ThreeVector GetPrimaryMomentum() const { return fPrimaryMomentum; }
-    //inline G4double GetPrimaryEnergy() const { return fPrimaryEnergy; }
-    //inline G4double GetPrimaryTime() const { return fPrimaryTime; }
+    G4int    fPrimaryTrackID;
+    //G4int    fParentPDGEncoding;
 };
 
 extern G4Allocator<BxTrackInformation> aTrackInformationAllocator;

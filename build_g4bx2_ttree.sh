@@ -72,7 +72,7 @@ grep -q 'ttree.mac' CMakeLists.txt || sed -i '/gun.mac/ a\ttree.mac' CMakeLists.
 source please_source_me
 
 cd ${g4bx2_dir}/build
-cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/ ../. &&
+cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/lib64/Geant4-10.0.2/ ../. &&
 make -j 8
 
 #TEMPORARY! Until bugfix

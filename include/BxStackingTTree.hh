@@ -8,6 +8,9 @@
 #ifndef BxStackingTTree_h
 #define BxStackingTTree_h 1
 
+#include "TFile.h"
+#include "TTree.h"
+
 #include "BxVStackingAction.hh"
 #include "BxStackingAction.hh"
 
@@ -15,11 +18,10 @@
 #include "G4UserStackingAction.hh"
 
 #include <bitset>
-#include <map>
+#include <set>
 
 class BxGeneratorTTree;
 class BxStackingTTreeMessenger;
-class G4StackManager;
 class G4Track;
 
 //
@@ -99,14 +101,37 @@ public: // with description
     */
     virtual void BxPrepareNewEvent();
     //---------------------------------------------------------------
+    //
     
     void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
+    void SetMode(G4bool val) { val ? fMode.set() : fMode.reset();}
+    
+    void     SetTimeCut(G4double val) { fTimeCut = val; }
+    G4double GetTimeCut() const { return fTimeCut; }
+    
     
 private:
     BxGeneratorTTree*         fGenerator;
     BxStackingTTreeMessenger* fMessenger;
     G4bool                    fIsFirst;
+    G4double                  fTimeCut;
     std::bitset<3>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
+    G4double                  fEkinMaxMuonDecay;
+    
+    struct MuMinusHelper {
+        G4int    parentID;
+        G4int    trackID;
+        G4double time;
+        
+        void Set(G4int _parentID, G4int _trackID, G4double _time) {
+            parentID = _parentID;
+            trackID  = _trackID ;
+            time     = _time    ;
+        }
+    };
+    MuMinusHelper             fCascadeElectron;
+    
+    std::set<G4int>           fMuPlusTrackIDs;
 };
 
 #endif

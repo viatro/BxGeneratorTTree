@@ -14,6 +14,7 @@ class BxStackingTTree;
 class G4UIcommand;
 class G4UIdirectory;
 class G4UIcmdWithAString;
+class G4UIcmdWithADoubleAndUnit;
 
 ///Messenger for BxStackingTTree
 class BxStackingTTreeMessenger: public G4UImessenger {
@@ -27,9 +28,10 @@ class BxStackingTTreeMessenger: public G4UImessenger {
         void SetNewValue(G4UIcommand*, G4String);
             
     private:
-        BxStackingTTree*        fStacking;
-        G4UIdirectory*       	fDirectory;
-        G4UIcmdWithAString*  	fModeCmd;
+        BxStackingTTree*              fStacking;
+        G4UIdirectory*       	      fDirectory;
+        G4UIcmdWithAString*  	      fModeCmd;
+        G4UIcmdWithADoubleAndUnit*    fTimeCutCmd;
 };
 
 #endif

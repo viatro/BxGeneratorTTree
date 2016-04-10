@@ -358,7 +358,7 @@ void BxGeneratorTTree::FillDequeFromEntry(G4int entry_number) {
     particle_info.event_id = fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : entry_number;
     
     G4ThreeVector rotationAngles(0.,0.,0.);
-    if (fVarTTF_RotateIso->EvalInstance64(0))  rotationAngles.set(twopi * G4UniformRand(), std::acos(1 - 2*G4UniformRand()), twopi * G4UniformRand());
+    if (fVarTTF_RotateIso->EvalInstance64(0))  rotationAngles.set(twopi*G4UniformRand(), std::acos(2.*G4UniformRand() - 1.), twopi*G4UniformRand());
     
     for (G4int i = 0; i < fVarTTF_NParticles->EvalInstance64(0); ++i) {
         if (fVarTTF_ParticleSkip->EvalInstance64(i))  continue;
@@ -469,7 +469,8 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         }
         
         fParticleGun->SetParticleDefinition(fParticle);
-        fParticleGun->SetParticleEnergy(fCurrentParticleInfo.energy);
+        //g4bx2 behaves wrong with particles with zero kinetic energy
+        fParticleGun->SetParticleEnergy(fCurrentParticleInfo.energy ? fCurrentParticleInfo.energy : 1e-100*eV);
         fParticleGun->SetParticleMomentumDirection(fCurrentParticleInfo.momentum);
         fParticleGun->SetParticlePosition(fCurrentParticleInfo.position);
         fParticleGun->SetParticlePolarization(fCurrentParticleInfo.polarization);
