@@ -21,6 +21,8 @@
 #include "G4MuonMinus.hh"
 #include "G4Electron.hh"
 
+#include "G4UnitsTable.hh"
+
 using namespace std;
 
 BxStackingTTree::BxStackingTTree() : fIsFirst(true), fTimeCut(0.), fMode(), fCascadeElectron(), fMuPlusTrackIDs() {
@@ -31,6 +33,8 @@ BxStackingTTree::BxStackingTTree() : fIsFirst(true), fTimeCut(0.), fMode(), fCas
     fMessenger = new BxStackingTTreeMessenger(this);
     
     BxLog(routine) << "TTree Stacking Method Active" << endlog;
+    
+    fEventNumber = 0;
 }
 
 BxStackingTTree::~BxStackingTTree() {}
@@ -60,6 +64,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                 particle_info.time = aTrack->GetGlobalTime();
                 particle_info.polarization = aTrack->GetPolarization();
                 particle_info.status = 1;
+                particle_info.postponed_level += 1;
                 
                 fGenerator->PushFrontToDeque(particle_info);
                 
@@ -67,13 +72,32 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
             }
         }
         if (fMode.test(1)) {
-            if (creatorProcessName == "RadioactiveDecay") {
+            if (creatorProcessName == "RadioactiveDecay" && aTrack->GetGlobalTime() >= fTimeCut) {
                 BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
                 if (!fGenerator->GetCurrentSplitMode()) {
                     BxTrackInformation* track_info = static_cast<BxTrackInformation*>(aTrack->GetUserInformation());
                     if (track_info)  particle_info.p_index = track_info->GetPrimaryTrackID();
                 }
-                BxLog(trace) << "STACKING: MODE 1 CALLED: p_index = " << particle_info.p_index << endlog;
+                particle_info.pdg_code = pdg_code;
+                particle_info.energy = aTrack->GetKineticEnergy();
+                particle_info.momentum = aTrack->GetMomentumDirection();
+                particle_info.position = aTrack->GetPosition();
+                particle_info.time = aTrack->GetGlobalTime();
+                particle_info.polarization = aTrack->GetPolarization();
+                particle_info.status = 1;
+                particle_info.postponed_level += 1;
+                
+                fGenerator->PushFrontToDeque(particle_info);
+                
+                return fKill;
+                G4cout << particleDef->GetParticleName() 
+                << "(" << aTrack->GetTrackID() << ")" 
+                << "{" << aTrack->GetParentID() << "}" 
+                << "[" << creatorProcessName << "]" 
+                << " KE = " << G4BestUnit(aTrack->GetKineticEnergy(), "Energy") 
+                << ", t = " << G4BestUnit(aTrack->GetGlobalTime(), "Time") 
+                << " @ " << G4BestUnit(aTrack->GetPosition(), "Length")
+                << G4endl;
             }
         }
         if (fMode.test(2)) {
@@ -110,6 +134,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                                 particle_info.time = trackTime;
                                 particle_info.polarization = aTrack->GetPolarization();
                                 particle_info.status = 3;
+                                particle_info.postponed_level += 1;
                                 
                                 fGenerator->PushFrontToDeque(particle_info);
                                 
@@ -135,6 +160,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                     particle_info.time = aTrack->GetGlobalTime();
                     particle_info.polarization = aTrack->GetPolarization();
                     particle_info.status = 3;
+                    particle_info.postponed_level += 1;
                     
                     fGenerator->PushFrontToDeque(particle_info);
                     
@@ -155,6 +181,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                 particle_info.time = aTrack->GetGlobalTime();
                 particle_info.polarization = aTrack->GetPolarization();
                 particle_info.status = 3;
+                particle_info.postponed_level += 1;
                 
                 fGenerator->PushFrontToDeque(particle_info);
                 
@@ -178,5 +205,7 @@ void BxStackingTTree::BxPrepareNewEvent() {
         fIsFirst = false;
     }
     fCascadeElectron.Set(0,0,0.);
+    G4cout << "#####=====     " << fEventNumber << "     =====#####" << G4endl;
+    ++fEventNumber;
 }
 

@@ -132,6 +132,8 @@ private:
     MuMinusHelper             fCascadeElectron;
     
     std::set<G4int>           fMuPlusTrackIDs;
+    
+    G4int fEventNumber;
 };
 
 #endif

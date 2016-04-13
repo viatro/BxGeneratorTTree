@@ -13,13 +13,14 @@
 #include "BxVGenerator.hh"
 
 #include <vector>
+#include <map>
 #include <deque>
 
 class BxGeneratorTTreeMessenger;
 class TTreeFormula;
 class TTreeFormulaManager;
 class G4Event;
-
+class G4ParticleGun;
 
 class BxGeneratorTTree : public BxVGenerator {
 public:
@@ -118,7 +119,6 @@ private:
     
     
     G4bool      fVarIsSet_EventId;
-    //G4bool      fVarIsSet_Polarization;
     
     TTreeFormula* fVarTTF_EventId;         ///< sequence number of the event (the event number)
     TTreeFormula* fVarTTF_EventSkip;       ///< 
@@ -137,9 +137,7 @@ private:
     
     TTreeFormulaManager*       fTTFmanager;
     
-    G4ParticleTable*           fParticleTable;
 	G4ParticleGun*             fParticleGun;
-    //G4ParticleDefinition*      fParticle;
     
     BxGeneratorTTreeMessenger* fMessenger;
     
@@ -154,6 +152,7 @@ public:
         G4double            time;
         G4ThreeVector       polarization;
         G4int               status;
+        G4int               postponed_level;
     };
     
     const ParticleInfo& GetCurrentParticleInfo() const {return fCurrentParticleInfo;}
@@ -162,7 +161,7 @@ public:
     
     void PushFrontToDeque(G4int event_id, G4int p_index, G4int pdg_code,
         G4double energy, const G4ThreeVector& momentum, const G4ThreeVector& position, G4double time,
-        const G4ThreeVector& polarization, G4int status) {
+        const G4ThreeVector& polarization, G4int status, G4int postponed_level) {
             ParticleInfo particle_info;
             particle_info.event_id = event_id;
             particle_info.p_index = p_index;
@@ -173,12 +172,13 @@ public:
             particle_info.time = time;
             particle_info.polarization = polarization;
             particle_info.status = status;
+            particle_info.postponed_level = postponed_level;
             fDequeParticleInfo.push_front(particle_info);
     }
     
     void PushBackToDeque(G4int event_id, G4int p_index, G4int pdg_code,
         G4double energy, const G4ThreeVector& momentum, const G4ThreeVector& position, G4double time,
-        const G4ThreeVector& polarization, G4int status) {
+        const G4ThreeVector& polarization, G4int status, G4int postponed_level) {
             ParticleInfo particle_info;
             particle_info.event_id = event_id;
             particle_info.p_index = p_index;
@@ -189,15 +189,16 @@ public:
             particle_info.time = time;
             particle_info.polarization = polarization;
             particle_info.status = status;
+            particle_info.postponed_level = postponed_level;
             fDequeParticleInfo.push_back(particle_info);
     }
     
 private:
     void FillDequeFromEntry(G4int entry_number);
     
-    ParticleInfo               fCurrentParticleInfo;
-    std::deque<ParticleInfo>   fDequeParticleInfo;
-    std::vector<G4int>         fPrimaryIndexes;
+    ParticleInfo                                 fCurrentParticleInfo;
+    std::deque<ParticleInfo>                     fDequeParticleInfo;
+    std::map<G4int, std::vector<G4int> >         fPrimaryIndexes; // <postponed_level, <p_index> >
 };
 
 #endif
