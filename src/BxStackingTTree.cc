@@ -167,7 +167,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                     return fKill;
                 }
             }  else if (pdg_code == -11 && (creatorProcessName == "Decay" || creatorProcessName == "DecayWithSpin")
-                && fMuPlusTrackIDs.count(aTrack->GetParentID()) && aTrack->GetGlobalTime() >= fTimeCut) {
+                && fMuPlusTrackIDs.count(aTrack->GetParentID()) && aTrack->GetKineticEnergy() <= fEkinMaxMuonDecay && aTrack->GetGlobalTime() >= fTimeCut) {
                 //There are only free muon decay for mu+, no captures
                 BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
                 if (!fGenerator->GetCurrentSplitMode()) {
