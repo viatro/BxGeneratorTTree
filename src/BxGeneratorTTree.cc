@@ -32,6 +32,8 @@
 #include "G4PhysicalConstants.hh"
 #include "Randomize.hh"
 
+#include <algorithm>
+
 BxGeneratorTTree::BxGeneratorTTree() : BxVGenerator("BxGeneratorTTree")
     //, fTreeNumber(-1),
     , fCurrentEntry(-1)
@@ -81,7 +83,7 @@ BxGeneratorTTree::BxGeneratorTTree() : BxVGenerator("BxGeneratorTTree")
     
     fMessenger = new BxGeneratorTTreeMessenger(this);
     
-    BxLog(warning) << "BxGeneratorTTree built" << endlog;
+    BxLog(routine) << "BxGeneratorTTree built" << endlog;
 }
 
 BxGeneratorTTree::~BxGeneratorTTree() {
@@ -352,8 +354,6 @@ void BxGeneratorTTree::FillDequeFromEntry(G4int entry_number) {
     fTreeChain->LoadTree(entry_number);
     fTTFmanager->GetNdata();
     
-    fPrimaryIndexes.clear();
-    
     ParticleInfo particle_info;
     particle_info.event_id = fVarIsSet_EventId ? fVarTTF_EventId->EvalInstance64(0) : entry_number;
     
@@ -363,6 +363,7 @@ void BxGeneratorTTree::FillDequeFromEntry(G4int entry_number) {
     for (G4int i = 0; i < fVarTTF_NParticles->EvalInstance64(0); ++i) {
         if (fVarTTF_ParticleSkip->EvalInstance64(i))  continue;
         particle_info.p_index = i;
+        particle_info.status = 0;
         
         particle_info.pdg_code = fVarTTF_Pdg->EvalInstance64(i);
         G4ParticleDefinition* fParticle = G4ParticleTable::GetParticleTable()->FindParticle(particle_info.pdg_code);
@@ -373,7 +374,7 @@ void BxGeneratorTTree::FillDequeFromEntry(G4int entry_number) {
                             << ", event_id = " << particle_info.event_id
                             << " : particle #" << i
                             << " : WARNING!" << endlog;
-                BxLog(warning) << "  Skipping unknown particle with PDG code " << particle_info.pdg_code << endlog;
+                BxLog(warning) << "    Skipping unknown particle with PDG code " << particle_info.pdg_code << endlog;
                 continue;
             }
         }
@@ -405,10 +406,6 @@ void BxGeneratorTTree::FillDequeFromEntry(G4int entry_number) {
             fVarTTF_Polarization[2]->EvalInstance(i)
         );
         
-        particle_info.status = 0;
-        particle_info.postponed_level = 0;
-        
-        fPrimaryIndexes[1].push_back(i);
         fDequeParticleInfo.push_back(particle_info);
     }
 }
@@ -445,16 +442,16 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         FillDequeFromEntry(fCurrentEntry);
     }
     
+    fPrimaryIndexes.clear();
+    
     fCurrentSplitMode = fVarTTF_Split->EvalInstance64(0);
+    if (!fCurrentSplitMode) {
+        std::sort(fDequeParticleInfo.begin(), fDequeParticleInfo.end(), particle_info_compare_by_time);
+    }
     
     do {
         fCurrentParticleInfo = fDequeParticleInfo.front();
         fDequeParticleInfo.pop_front();
-        
-        if (fCurrentParticleInfo.postponed_level > 0 && fCurrentSplitMode == false) {
-            fCurrentParticleInfo.p_index = fPrimaryIndexes[fCurrentParticleInfo.postponed_level][fCurrentParticleInfo.p_index - 1];
-            fPrimaryIndexes[fCurrentParticleInfo.postponed_level + 1].push_back(fCurrentParticleInfo.p_index);
-        }
         
         G4ParticleDefinition* fParticle = G4ParticleTable::GetParticleTable()->FindParticle(fCurrentParticleInfo.pdg_code);
         if (!fParticle) {
@@ -475,9 +472,12 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         fParticleGun->SetParticleEnergy(fCurrentParticleInfo.energy ? fCurrentParticleInfo.energy : 1e-100*eV);
         fParticleGun->SetParticleMomentumDirection(fCurrentParticleInfo.momentum);
         fParticleGun->SetParticlePosition(fCurrentParticleInfo.position);
+        fParticleGun->SetParticleTime(fCurrentParticleInfo.time);
         fParticleGun->SetParticlePolarization(fCurrentParticleInfo.polarization);
         
         fParticleGun->GeneratePrimaryVertex(event);
+        
+        fPrimaryIndexes.push_back(fCurrentParticleInfo.p_index);
         
         BxOutputVertex::Get()->SetEventID(fCurrentParticleInfo.event_id);
         BxOutputVertex::Get()->SetUserInt1(fCurrentParticleInfo.p_index);
@@ -501,12 +501,12 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         BxLog(trace) << "  Entry " << fCurrentEntry
                     << ", event_id = " << fCurrentParticleInfo.event_id
                     << " : particle #" << fCurrentParticleInfo.p_index
-                    << (fCurrentParticleInfo.postponed_level > 0 ? ", POSTPONED" : "")
+                    << (fCurrentParticleInfo.status != 0 ? TString::Format(", POSTPONED'%d", fCurrentParticleInfo.status) : "")
                     << " : " << fParticle->GetParticleName()
                     << "\t=>" << endlog;
         BxLog(trace) << "    Ekin = " << G4BestUnit(fCurrentParticleInfo.energy, "Energy") << endlog;
         BxLog(trace) << "    direction = " << fCurrentParticleInfo.momentum << endlog;
         BxLog(trace) << "    position = " << G4BestUnit(fCurrentParticleInfo.position, "Length") << endlog;
         BxLog(trace) << "    time = " << G4BestUnit(fCurrentParticleInfo.time, "Time") << endlog;
-    } while (!fCurrentSplitMode && !fDequeParticleInfo.empty());
+    } while (!fCurrentSplitMode && !fDequeParticleInfo.empty() && fDequeParticleInfo.front().time == fCurrentParticleInfo.time);
 }

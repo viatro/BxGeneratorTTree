@@ -66,13 +66,17 @@ if ! grep -q 'BxTrackInformation' BxTrackingAction.cc; then
     }' BxTrackingAction.cc
 fi
 
+cd ${g4bx2_dir}/src
+grep -q 'theLENeutronCaptureModel->SetMaxEnergy(100.*TeV);' BxPhysicsList.cc || sed -i "/theLENeutronCaptureModel->SetMaxEnergy/ s//&(100.*TeV);\/\//" BxPhysicsList.cc
+
 cd ${g4bx2_dir}
 grep -q 'TreePlayer' CMakeLists.txt || sed -i 's/\${ROOT_LIBRARIES}/& TreePlayer/g' CMakeLists.txt
 grep -q 'ttree.mac' CMakeLists.txt || sed -i '/gun.mac/ a\ttree.mac' CMakeLists.txt
 source please_source_me
 
 cd ${g4bx2_dir}/build
-cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/lib64/Geant4-10.0.2/ ../. &&
+##cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/lib64/Geant4-10.0.2/ ../. &&
+cmake -DGeant4_DIR=/storage/gpfs_data/borexino/users/viatro/opt/geant4/geant4.10.01.p03/lib64/Geant4-10.1.3/ ../. &&
 make -j 8
 
 #TEMPORARY! Until bugfix

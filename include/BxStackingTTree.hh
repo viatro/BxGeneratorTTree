@@ -19,6 +19,7 @@
 
 #include <bitset>
 #include <set>
+#include <map>
 
 class BxGeneratorTTree;
 class BxStackingTTreeMessenger;
@@ -106,15 +107,10 @@ public: // with description
     void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
     void SetMode(G4bool val) { val ? fMode.set() : fMode.reset();}
     
-    void     SetTimeCut(G4double val) { fTimeCut = val; }
-    G4double GetTimeCut() const { return fTimeCut; }
-    
-    
 private:
     BxGeneratorTTree*         fGenerator;
     BxStackingTTreeMessenger* fMessenger;
     G4bool                    fIsFirst;
-    G4double                  fTimeCut;
     std::bitset<3>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
     G4double                  fEkinMaxMuonDecay;
     
@@ -129,9 +125,12 @@ private:
             time     = _time    ;
         }
     };
-    MuMinusHelper             fCascadeElectron;
+    MuMinusHelper             fAugerElectron;
     
     std::set<G4int>           fMuPlusTrackIDs;
+    
+    std::map<G4int, G4double> fRadNucleiTrackTimes; // <trackID, GlobalTime>
+    G4double fRadNucleiLifetimeThreshold;
     
     G4int fEventNumber;
 };

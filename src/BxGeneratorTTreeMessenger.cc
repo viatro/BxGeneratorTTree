@@ -82,7 +82,7 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : fG
     fVarPolarizationCmd->SetGuidance("Polarization of particle");
     fVarPolarizationCmd->SetGuidance("Default:    0 0 0");
     
-    BxLog(warning) << "BxGeneratorTTreeMessenger built" << endlog;
+    BxLog(routine) << "BxGeneratorTTreeMessenger built" << endlog;
 }
 
 BxGeneratorTTreeMessenger::~BxGeneratorTTreeMessenger() {

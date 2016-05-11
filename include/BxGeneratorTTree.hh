@@ -145,51 +145,49 @@ public:
     struct ParticleInfo {
         G4int               event_id;
         G4int               p_index;
+        G4int               status;
         G4int               pdg_code;
         G4double            energy;
         G4ThreeVector       momentum;
         G4ThreeVector       position;
         G4double            time;
         G4ThreeVector       polarization;
-        G4int               status;
-        G4int               postponed_level;
     };
     
     const ParticleInfo& GetCurrentParticleInfo() const {return fCurrentParticleInfo;}
     void  PushFrontToDeque(const ParticleInfo& particle_info) {fDequeParticleInfo.push_front(particle_info);}
     void  PushBackToDeque(const ParticleInfo& particle_info) {fDequeParticleInfo.push_back(particle_info);}
+    const std::vector<G4int>& GetCurrentPrimaryIndexes() {return fPrimaryIndexes;}
     
-    void PushFrontToDeque(G4int event_id, G4int p_index, G4int pdg_code,
-        G4double energy, const G4ThreeVector& momentum, const G4ThreeVector& position, G4double time,
-        const G4ThreeVector& polarization, G4int status, G4int postponed_level) {
+    void PushFrontToDeque(G4int event_id, G4int p_index, G4int status,
+        G4int pdg_code, G4double energy, const G4ThreeVector& momentum,
+        const G4ThreeVector& position, G4double time, const G4ThreeVector& polarization) {
             ParticleInfo particle_info;
             particle_info.event_id = event_id;
             particle_info.p_index = p_index;
+            particle_info.status = status;
             particle_info.pdg_code = pdg_code;
             particle_info.energy = energy;
             particle_info.momentum = momentum;
             particle_info.position = position;
             particle_info.time = time;
             particle_info.polarization = polarization;
-            particle_info.status = status;
-            particle_info.postponed_level = postponed_level;
             fDequeParticleInfo.push_front(particle_info);
     }
     
-    void PushBackToDeque(G4int event_id, G4int p_index, G4int pdg_code,
-        G4double energy, const G4ThreeVector& momentum, const G4ThreeVector& position, G4double time,
-        const G4ThreeVector& polarization, G4int status, G4int postponed_level) {
+    void PushBackToDeque(G4int event_id, G4int p_index, G4int status,
+        G4int pdg_code, G4double energy, const G4ThreeVector& momentum,
+        const G4ThreeVector& position, G4double time, const G4ThreeVector& polarization) {
             ParticleInfo particle_info;
             particle_info.event_id = event_id;
             particle_info.p_index = p_index;
+            particle_info.status = status;
             particle_info.pdg_code = pdg_code;
             particle_info.energy = energy;
             particle_info.momentum = momentum;
             particle_info.position = position;
             particle_info.time = time;
             particle_info.polarization = polarization;
-            particle_info.status = status;
-            particle_info.postponed_level = postponed_level;
             fDequeParticleInfo.push_back(particle_info);
     }
     
@@ -198,7 +196,13 @@ private:
     
     ParticleInfo                                 fCurrentParticleInfo;
     std::deque<ParticleInfo>                     fDequeParticleInfo;
-    std::map<G4int, std::vector<G4int> >         fPrimaryIndexes; // <postponed_level, <p_index> >
+    std::vector<G4int>                           fPrimaryIndexes;
+    
+    struct ParticleInfoCompareByTime {
+        bool operator() (const ParticleInfo& p1, const ParticleInfo& p2) {
+            return p1.time < p2.time;
+        }
+    } particle_info_compare_by_time;
 };
 
 #endif

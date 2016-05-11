@@ -31,7 +31,6 @@ class BxStackingTTreeMessenger: public G4UImessenger {
         BxStackingTTree*              fStacking;
         G4UIdirectory*       	      fDirectory;
         G4UIcmdWithAString*  	      fModeCmd;
-        G4UIcmdWithADoubleAndUnit*    fTimeCutCmd;
 };
 
 #endif
