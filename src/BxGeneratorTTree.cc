@@ -98,10 +98,12 @@ BxGeneratorTTree::~BxGeneratorTTree() {
     delete    fVarTTF_RotateIso    ;
     delete    fVarTTF_Pdg          ;
     delete    fVarTTF_Ekin         ;
-    delete[]  fVarTTF_Momentum     ;
-    delete[]  fVarTTF_Position     ;
     delete    fVarTTF_Time         ;
-    delete[]  fVarTTF_Polarization ;
+    for (G4int i = 0; i < 3; ++i) {
+        delete    fVarTTF_Momentum     [i];
+        delete    fVarTTF_Position     [i];
+        delete    fVarTTF_Polarization [i];
+    }
     
     delete fTreeChain;
 }
@@ -472,7 +474,7 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         fParticleGun->SetParticleEnergy(fCurrentParticleInfo.energy ? fCurrentParticleInfo.energy : 1e-100*eV);
         fParticleGun->SetParticleMomentumDirection(fCurrentParticleInfo.momentum);
         fParticleGun->SetParticlePosition(fCurrentParticleInfo.position);
-        fParticleGun->SetParticleTime(fCurrentParticleInfo.time);
+        fParticleGun->SetParticleTime(fCurrentParticleInfo.status == 0 ? fCurrentParticleInfo.time : 0);
         fParticleGun->SetParticlePolarization(fCurrentParticleInfo.polarization);
         
         fParticleGun->GeneratePrimaryVertex(event);

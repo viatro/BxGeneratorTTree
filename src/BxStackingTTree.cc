@@ -104,7 +104,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
             if (creatorProcessName == "muMinusCaptureAtRest") {
                 //mean lifetime of muonic carbon is 2.026 mus, of muonic hydrogen is almost equal to free muon lifetime
                 if (pdg_code == 11) {
-                    //Decay in orbit: about 93% of mu- captures for carbon, almost all for hydrogen
+                    //Decay in orbit: 93.6318% of mu- captures for Borexino scintillator
                     //Processes "Decay" and "DecayWithSpin" seem to do not give any significant delay time between mu- and e-
                     //For mu- with uniformly distributed kinetic energies from 0 to 1000 MeV, delay times from "Decay" are up to 20 ns
                     //They are only decays in flight
@@ -120,7 +120,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                     if (fAugerElectron.parentID != aTrack->GetParentID()) {
                         fAugerElectron.Set(aTrack->GetParentID(), aTrack->GetTrackID(), trackTime);
                     } else {
-                        if (true && fAugerElectron.parentID == aTrack->GetParentID()) {
+                        if (fAugerElectron.parentID == aTrack->GetParentID()) {
                             if (fAugerElectron.time != trackTime && fAugerElectron.trackID != aTrack->GetTrackID()) {
                                 BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
                                 if (!fGenerator->GetCurrentSplitMode()) {
@@ -142,7 +142,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                         }
                     }
                 } else if (aTrack->GetGlobalTime() != fAugerElectron.time && pdg_code != 14 && pdg_code != -12) {
-                    //Nuclear capture: about 7% of mu- captures for carbon
+                    //Nuclear capture: 6.3682% of mu- captures for Borexino scintillator
                     //by    mu- + p -> n + nu_mu    or    mu- + (A,Z) -> (A,Z-1) + nu_mu
                     //WARNING! There is a bug in Geant4 versions lower than 10.0.p04 and 10.1.p01: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1695
                     //         Gammas, protons, neutrons, deutrons, tritons, alphas and residual nuclei with delay time ~ 0.1-10 mus can be produced
