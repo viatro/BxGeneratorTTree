@@ -5,8 +5,6 @@
 */
 // -------------------------------------------------- //
 
-#include "TString.h"
-#include "TObjArray.h"
 #include "TTreeFormula.h"
 #include "TTreeFormulaManager.h"
 
@@ -30,29 +28,30 @@
 #include "G4ParticleMomentum.hh"
 #include "G4PrimaryParticle.hh"
 #include "G4PhysicalConstants.hh"
+#include "G4AnalysisUtilities.hh"
 #include "Randomize.hh"
 
 #include <algorithm>
 
-BxGeneratorTTree::BxGeneratorTTree() : BxVGenerator("BxGeneratorTTree")
-    //, fTreeNumber(-1),
-    , fCurrentEntry(-1)
-    , fFirstEntry(0)
-    , fLastEntry(0)
-    , fNEntries(0)
-    , fIsInitialized(false)
-    , fParticleCounter(0)
-    , fVarUnit_Ekin(MeV)
-    , fVarUnit_Momentum(MeV)
-    , fVarUnit_Position(m)
-    , fVarUnit_Time(ns)
-    , fVarIsSet_EventId(false)
-    , fCurrentSplitMode(false)
-    , fCurrentParticleInfo()
-    , fDequeParticleInfo()
-    , fPrimaryIndexes()
-    {
-    
+BxGeneratorTTree::BxGeneratorTTree()
+: BxVGenerator("BxGeneratorTTree")
+//, fTreeNumber(-1),
+, fCurrentEntry(-1)
+, fFirstEntry(0)
+, fLastEntry(0)
+, fNEntries(0)
+, fIsInitialized(false)
+, fParticleCounter(0)
+, fVarUnit_Ekin(MeV)
+, fVarUnit_Momentum(MeV)
+, fVarUnit_Position(m)
+, fVarUnit_Time(ns)
+, fVarIsSet_EventId(false)
+, fCurrentSplitMode(false)
+, fCurrentParticleInfo()
+, fDequeParticleInfo()
+, fPrimaryIndexes()
+{
     fTreeChain = new TChain();
     
     fVarTTF_EventId         = new TTreeFormula("tf", "0" , 0);
@@ -123,52 +122,35 @@ void BxGeneratorTTree::Initialize() {
         BxLog(fatal) << "FATAL " << endlog;
     }
     fCurrentEntry += fFirstEntry;
-    
-    TObjArray* tobjarr = 0;
-    G4int ntokens = 0;
-    TString tstring = "";
+    if (fNEntries <= 0) fNEntries = fLastEntry - fFirstEntry + 1;
     
     if (!fVarString_EventId.isNull()) {
-        tstring = fVarString_EventId.data();
-        if (!tstring.IsFloat()) {
-            delete fVarTTF_EventId;
-            fVarTTF_EventId = new TTreeFormula("tf", tstring.Data(), fTreeChain);
-            if (fVarTTF_EventId->GetMultiplicity() != 0) {
-                BxLog(error) << "\"Event ID\" variable has wrong multiplicity!" << endlog;
-                BxLog(fatal) << "FATAL " << endlog;
-            }
-            fVarTTF_EventId->SetQuickLoad(true);
-            fVarIsSet_EventId = true;
+        delete fVarTTF_EventId;
+        fVarTTF_EventId = new TTreeFormula("tf", fVarString_EventId.data(), fTreeChain);
+        if (fVarTTF_EventId->GetMultiplicity() != 0) {
+            BxLog(error) << "\"Event ID\" variable has wrong multiplicity!" << endlog;
+            BxLog(fatal) << "FATAL " << endlog;
         }
+        fVarTTF_EventId->SetQuickLoad(true);
+        fVarIsSet_EventId = true;
     }
     
     if (!fVarString_EventSkip.isNull()) {
-        tstring = fVarString_EventSkip.data();
         delete fVarTTF_EventSkip;
-        fVarTTF_EventSkip = new TTreeFormula("tf", tstring.Data(), fTreeChain);
-        /*if (fVarTTF_EventSkip->GetMultiplicity() != 0) {
-            BxLog(error) << "\"Event skip if\" variable has wrong multiplicity!" << endlog;
-            BxLog(fatal) << "FATAL " << endlog;
-        }*/
+        fVarTTF_EventSkip = new TTreeFormula("tf", fVarString_EventSkip.data(), fTreeChain);
         fVarTTF_EventSkip->SetQuickLoad(true);
     }
     
     if (!fVarString_ParticleSkip.isNull()) {
-        tstring = fVarString_ParticleSkip.data();
         delete fVarTTF_ParticleSkip;
-        fVarTTF_ParticleSkip = new TTreeFormula("tf", tstring.Data(), fTreeChain);
-        /*if (fVarTTF_ParticleSkip->GetMultiplicity() != 0) {
-            BxLog(error) << "\"Particle skip if\" variable has wrong multiplicity!" << endlog;
-            BxLog(fatal) << "FATAL " << endlog;
-        }*/
+        fVarTTF_ParticleSkip = new TTreeFormula("tf", fVarString_ParticleSkip.data(), fTreeChain);
         if (fVarTTF_ParticleSkip->GetMultiplicity()) fTTFmanager->Add(fVarTTF_ParticleSkip);
         fVarTTF_ParticleSkip->SetQuickLoad(true);
     }
     
     if (!fVarString_NParticles.isNull()) {
-        tstring = fVarString_NParticles.data();
         delete fVarTTF_NParticles;
-        fVarTTF_NParticles = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        fVarTTF_NParticles = new TTreeFormula("tf", fVarString_NParticles.data(), fTreeChain);
         if (fVarTTF_NParticles->GetMultiplicity() != 0) {
             BxLog(error) << "\"Number of particles\" variable has wrong multiplicity!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
@@ -177,9 +159,8 @@ void BxGeneratorTTree::Initialize() {
     }
     
     if (!fVarString_Split.isNull()) {
-        tstring = fVarString_Split.data();
         delete fVarTTF_Split;
-        fVarTTF_Split = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        fVarTTF_Split = new TTreeFormula("tf", fVarString_Split.data(), fTreeChain);
         if (fVarTTF_Split->GetMultiplicity() != 0) {
             BxLog(error) << "\"Split\" variable has wrong multiplicity!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
@@ -188,9 +169,8 @@ void BxGeneratorTTree::Initialize() {
     }
     
     if (!fVarString_RotateIso.isNull()) {
-        tstring = fVarString_RotateIso.data();
         delete fVarTTF_RotateIso;
-        fVarTTF_RotateIso = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        fVarTTF_RotateIso = new TTreeFormula("tf", fVarString_RotateIso.data(), fTreeChain);
         if (fVarTTF_RotateIso->GetMultiplicity() != 0) {
             BxLog(error) << "\"RotateIso\" variable has wrong multiplicity!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
@@ -199,125 +179,111 @@ void BxGeneratorTTree::Initialize() {
     }
     
     if (!fVarString_Pdg.isNull()) {
-        tstring = fVarString_Pdg.data();
-        if (tstring.IsDigit()) {
-            G4ParticleDefinition* fParticle = G4ParticleTable::GetParticleTable()->FindParticle(tstring.Atoi());
-            if (!fParticle)    fParticle = G4IonTable::GetIonTable()->GetIon(tstring.Atoi());
-            if (!fParticle) { // Unknown particle
-                BxLog(error) << "Unknown PDG code : " << tstring.Atoi() << " !" << endlog;
-                BxLog(fatal) << "FATAL " << endlog;
-            }
-        }
         delete fVarTTF_Pdg;
-        fVarTTF_Pdg = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        fVarTTF_Pdg = new TTreeFormula("tf", fVarString_Pdg.data(), fTreeChain);
         if (fVarTTF_Pdg->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Pdg);
         fVarTTF_Pdg->SetQuickLoad(true);
     }
     
     if (!fVarString_Ekin.isNull()) {
-        tstring = fVarString_Ekin.data();
-        tobjarr = tstring.Tokenize(" \t\n");
-        ntokens = tobjarr->GetEntries();
+        std::vector<G4String> tokens;
+        G4Analysis::Tokenize(fVarString_Ekin, tokens);
+        G4int ntokens = tokens.size();
         if (ntokens < 1 || ntokens > 2) {
             BxLog(error) << "Variable String \"Ekin\" has wrong tokens number!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
         if (ntokens == 2) {
-            if (G4UnitDefinition::GetCategory(tobjarr->UncheckedAt(1)->GetName()) != "Energy") {
+            if (G4UnitDefinition::GetCategory(tokens[1]) != "Energy") {
                 BxLog(error) << "Variable String \"Ekin\" has wrong unit category or unit name!" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;
             }
-            fVarUnit_Ekin = G4UnitDefinition::GetValueOf(tobjarr->UncheckedAt(1)->GetName());
+            fVarUnit_Ekin = G4UnitDefinition::GetValueOf(tokens[1]);
         }
-        tstring = TString(tobjarr->UncheckedAt(0)->GetName());
         delete fVarTTF_Ekin;
-        fVarTTF_Ekin = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        fVarTTF_Ekin = new TTreeFormula("tf", tokens[0].data(), fTreeChain);
         if (fVarTTF_Ekin->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Ekin);
         fVarTTF_Ekin->SetQuickLoad(true);
     }
     
     if (!fVarString_Momentum.isNull()) {
-        tstring = fVarString_Momentum.data();
-        tobjarr = tstring.Tokenize(" \t\n");
-        ntokens = tobjarr->GetEntries();
+        std::vector<G4String> tokens;
+        G4Analysis::Tokenize(fVarString_Momentum, tokens);
+        G4int ntokens = tokens.size();
         if (ntokens < 3 || ntokens > 4) {
             BxLog(error) << "Variable string \"Momentum\" has wrong tokens number!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
         if (ntokens == 4) {
-            if (G4UnitDefinition::GetCategory(tobjarr->UncheckedAt(3)->GetName()) != "Energy") {
+            if (G4UnitDefinition::GetCategory(tokens[3]) != "Energy") {
                 BxLog(error) << "Variable string \"Momentum\" has wrong unit category or unit name!" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;
             }
-            fVarUnit_Momentum = G4UnitDefinition::GetValueOf(tobjarr->UncheckedAt(3)->GetName());
+            fVarUnit_Momentum = G4UnitDefinition::GetValueOf(tokens[3]);
         }
         for (G4int i = 0; i < 3; ++i) {
-            tstring = TString(tobjarr->UncheckedAt(i)->GetName());
             delete fVarTTF_Momentum[i];
-            fVarTTF_Momentum[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            fVarTTF_Momentum[i] = new TTreeFormula("tf", tokens[i].data(), fTreeChain);
             if (fVarTTF_Momentum[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Momentum[i]);
             fVarTTF_Momentum[i]->SetQuickLoad(true);
         }
     }
     
     if (!fVarString_Position.isNull()) {
-        tstring = fVarString_Position.data();
-        tobjarr = tstring.Tokenize(" \t\n");
-        ntokens = tobjarr->GetEntries();
+        std::vector<G4String> tokens;
+        G4Analysis::Tokenize(fVarString_Position, tokens);
+        G4int ntokens = tokens.size();
         if (ntokens < 3 || ntokens > 4) {
             BxLog(error) << "Variable string \"Position\" has wrong tokens number!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
         if (ntokens == 4) {
-            if (G4UnitDefinition::GetCategory(tobjarr->UncheckedAt(3)->GetName()) != "Length") {
+            if (G4UnitDefinition::GetCategory(tokens[3]) != "Length") {
                 BxLog(error) << "Variable string \"Position\" has wrong unit category or unit name!" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;
             }
-            fVarUnit_Position = G4UnitDefinition::GetValueOf(tobjarr->UncheckedAt(3)->GetName());
+            fVarUnit_Position = G4UnitDefinition::GetValueOf(tokens[3]);
         }
         for (G4int i = 0; i < 3; ++i) {
-            tstring = TString(tobjarr->UncheckedAt(i)->GetName());
             delete fVarTTF_Position[i];
-            fVarTTF_Position[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            fVarTTF_Position[i] = new TTreeFormula("tf", tokens[i].data(), fTreeChain);
             if (fVarTTF_Position[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Position[i]);
             fVarTTF_Position[i]->SetQuickLoad(true);
         }
     }
     
     if (!fVarString_Time.isNull()) {
-        tstring = fVarString_Time.data();
-        tobjarr = tstring.Tokenize(" \t\n");
-        ntokens = tobjarr->GetEntries();
+        std::vector<G4String> tokens;
+        G4Analysis::Tokenize(fVarString_Time, tokens);
+        G4int ntokens = tokens.size();
         if (ntokens < 1 || ntokens > 2) {
             BxLog(error) << "Variable String \"Time\" has wrong tokens number!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
         if (ntokens == 2) {
-            if (G4UnitDefinition::GetCategory(tobjarr->UncheckedAt(1)->GetName()) != "Time") {
+            if (G4UnitDefinition::GetCategory(tokens[1]) != "Time") {
                 BxLog(error) << "Variable String \"Time\" has wrong unit category or unit name!" << endlog;
                 BxLog(fatal) << "FATAL " << endlog;
             }
-            fVarUnit_Time = G4UnitDefinition::GetValueOf(tobjarr->UncheckedAt(1)->GetName());
+            fVarUnit_Time = G4UnitDefinition::GetValueOf(tokens[1]);
         }
-        tstring = TString(tobjarr->UncheckedAt(0)->GetName());
         delete fVarTTF_Time;
-        fVarTTF_Time = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+        fVarTTF_Time = new TTreeFormula("tf", tokens[0].data(), fTreeChain);
         if (fVarTTF_Time->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Time);
         fVarTTF_Time->SetQuickLoad(true);
     }
     
     if (!fVarString_Polarization.isNull()) {
-        tstring = fVarString_Polarization.data();
-        tobjarr = tstring.Tokenize(" \t\n");
-        ntokens = tobjarr->GetEntries();
+        std::vector<G4String> tokens;
+        G4Analysis::Tokenize(fVarString_Polarization, tokens);
+        G4int ntokens = tokens.size();
         if (ntokens != 3) {
             BxLog(error) << "Variable string \"Polarization\" has wrong tokens number!" << endlog;
             BxLog(fatal) << "FATAL " << endlog;
         }
         for (G4int i = 0; i < 3; ++i) {
-            tstring = TString(tobjarr->UncheckedAt(i)->GetName());
             delete fVarTTF_Polarization[i];
-            fVarTTF_Polarization[i] = new TTreeFormula("tf", tstring.Data(), fTreeChain);
+            fVarTTF_Polarization[i] = new TTreeFormula("tf", tokens[i].data(), fTreeChain);
             if (fVarTTF_Polarization[i]->GetMultiplicity()) fTTFmanager->Add(fVarTTF_Polarization[i]);
             fVarTTF_Polarization[i]->SetQuickLoad(true);
         }
@@ -510,5 +476,5 @@ void BxGeneratorTTree::BxGeneratePrimaries(G4Event* event) {
         BxLog(trace) << "    direction = " << fCurrentParticleInfo.momentum << endlog;
         BxLog(trace) << "    position = " << G4BestUnit(fCurrentParticleInfo.position, "Length") << endlog;
         BxLog(trace) << "    time = " << G4BestUnit(fCurrentParticleInfo.time, "Time") << endlog;
-    } while (!fCurrentSplitMode && !fDequeParticleInfo.empty() && fDequeParticleInfo.front().time == fCurrentParticleInfo.time);
+    } while (!fCurrentSplitMode && !fDequeParticleInfo.empty() && (fCurrentParticleInfo.status == 0 || fDequeParticleInfo.front().time == fCurrentParticleInfo.time));
 }

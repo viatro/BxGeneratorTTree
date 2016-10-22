@@ -91,12 +91,12 @@
 #Default:    all
 /bx/generator/ttree/n_entries    10
 
-#Uncomment for change default variables names.
-#Argument is the variables names in input Tree with unit.
-#You can write exact values instead of names/expressions in args.
-#They will be used for all simulated events.
+#Uncomment for change default variables names/values.
+#Argument is the variable name in input Tree with unit.
+#You can write exact values instead of names/expressions in arguments.
+#Then they will be used for all simulated events.
 #In this case, such branches in input Tree are not needed.
-#It is also possible to mix names and exact values
+#It is also possible to mix names and exact values in position, momentum and polarization
 #(e.g. /bx/generator/ttree/position    particle.x  particle.y  0.5    m)
 #Any expression that is working in TTree::Draw() can be used (even special, like Sum$, see docs of TTree::Draw()).
 #WARNING! If there are more than one tokens assumed (as for energy, momentum, position, polarization),
@@ -110,14 +110,12 @@
 #/bx/generator/ttree/var/event_id    iev
 
 #Skip event if condition (boolean expression) is true.
-#NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
 #Example: skip event if particles PDG array contains mu- or mu+:
 #         /event_skip_if    Sum$(p.pdg==13 || p.pdg==-13) > 0
 #Default:    0
 #/bx/generator/ttree/var/event_skip_if    event_condition
 
 #Skip particle if condition (boolean expression) is true.
-#NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
 #Example: skip event if particle is mu- or mu+:
 #         /event_skip_if    p.pdg==13 || p.pdg==-13
 #Default:    0
@@ -128,18 +126,30 @@
 #/bx/generator/ttree/var/n_particles    n
 
 #Split particles to separate events.
-#NOTE: particles within one TTree(Chain) entry will be simulated as & written into separate events, but with same EventID
+#NOTE: When true, particles within one TTree(Chain) entry will be simulated as separate Geant events
+       and written into separate BX events, but with same MCTruth EventID
 #NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
 #Default:    0
 #/bx/generator/ttree/var/split    1
 
-#Rotate whole event to a random angle
-#Can be used to obtain isotropic particle source when all 3 components in Momentum/direction are exact values, like default  0 0 1  MeV.
+#Rotate particles directions to a random angle in 3D
+#Can be used to obtain isotropic particle source when all 3 components in Momentum/direction are exact values,
+e.g. like default  0 0 1  MeV.
 #NOTE: As exact values use only 0/1, true/false will be interpreted as branch name.
+#NOTE: All particles from single Tree entry are rotated by the same angle
+#WARNING: Do not use it, having multiple particles with different(!) positions in single Tree entry!
+          It rotates only directions, positions remains the same.
+          Let's consider two particles on plain:
+              1*-->    <--*2
+          Potating their directions by Pi we will have
+              <--*1    2*-->
+          which is obviously not the same with rotating the whole system
+              2*-->    <--*1
+          So it is safe only when all particles in single Tree entry have the same position
 #Default:    0
 /bx/generator/ttree/var/rotate_iso    0
 
-#PDG code
+#PDG code of particle
 #Default: 22
 #/bx/generator/ttree/var/pdg    pdg
 
@@ -165,6 +175,15 @@
 #Particle polarization
 #Default: none
 #/bx/generator/ttree/var/polz    polz_x polz_y polz_z
+
+
+#Event postponing (stacking)
+#/bx/stack/select    TTree
+
+#Turn on mode for stacking
+#NOTE: possible arguments are 'all', or any space separated combination of 'neutron', 'muon' and 'ra_decay'
+#Default: none
+#/bx/stack/ttree/mode    all
 
 # ===== End of Generator setup =====
 

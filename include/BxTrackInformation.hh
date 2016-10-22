@@ -38,17 +38,19 @@ private:
     //G4int    fParentPDGEncoding;
 };
 
-extern G4Allocator<BxTrackInformation> aTrackInformationAllocator;
+extern G4ThreadLocal G4Allocator<BxTrackInformation>* aTrackInformationAllocator;
 
 inline void* BxTrackInformation::operator new(size_t) {
-    //void* aTrackInfo;
-    //aTrackInfo = (void*)aTrackInformationAllocator.MallocSingle();
-    //return aTrackInfo;
-    return (void*)aTrackInformationAllocator.MallocSingle();
+    if (!aTrackInformationAllocator) {
+        aTrackInformationAllocator = new G4Allocator<BxTrackInformation>;
+    }
+    void* aTrackInfo;
+    aTrackInfo = (void*)aTrackInformationAllocator->MallocSingle();
+    return aTrackInfo;
 }
 
 inline void BxTrackInformation::operator delete(void *aTrackInfo) {
-    aTrackInformationAllocator.FreeSingle((BxTrackInformation*)aTrackInfo);
+    aTrackInformationAllocator->FreeSingle((BxTrackInformation*)aTrackInfo);
 }
 
 #endif

@@ -105,13 +105,17 @@ public: // with description
     //
     
     void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
-    void SetMode(G4bool val) { val ? fMode.set() : fMode.reset();}
+    void SetMode(G4bool val) { val ? fMode.set() : fMode.reset(); }
+    
+    void   SetKillOpticalPhotons(G4bool val) { fKillOpticalPhotons = val; }
+    G4bool GetKillOpticalPhotons() { return fKillOpticalPhotons; }
     
 private:
     BxGeneratorTTree*         fGenerator;
     BxStackingTTreeMessenger* fMessenger;
     G4bool                    fIsFirst;
     std::bitset<3>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
+    G4bool                    fKillOpticalPhotons;
     G4double                  fEkinMaxMuonDecay;
     
     struct MuMinusHelper {
@@ -131,8 +135,6 @@ private:
     
     std::map<G4int, G4double> fRadNucleiTrackTimes; // <trackID, GlobalTime>
     G4double fRadNucleiLifetimeThreshold;
-    
-    G4int fEventNumber;
 };
 
 #endif

@@ -14,6 +14,7 @@ class BxStackingTTree;
 class G4UIcommand;
 class G4UIdirectory;
 class G4UIcmdWithAString;
+class G4UIcmdWithABool;
 class G4UIcmdWithADoubleAndUnit;
 
 ///Messenger for BxStackingTTree
@@ -31,6 +32,7 @@ class BxStackingTTreeMessenger: public G4UImessenger {
         BxStackingTTree*              fStacking;
         G4UIdirectory*       	      fDirectory;
         G4UIcmdWithAString*  	      fModeCmd;
+        G4UIcmdWithABool*             fKillOpticalPhotonsCmd;
 };
 
 #endif

@@ -12,15 +12,22 @@
 #include "G4UIcommand.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4AnalysisUtilities.hh"
 
-BxStackingTTreeMessenger::BxStackingTTreeMessenger(BxStackingTTree* stack) : fStacking(stack) {
+BxStackingTTreeMessenger::BxStackingTTreeMessenger(BxStackingTTree* stack)
+: fStacking(stack)
+{
     fDirectory = new G4UIdirectory("/bx/stack/ttree/");
     fDirectory->SetGuidance("Control of Stacking for TTree event generator");
     
     fModeCmd = new G4UIcmdWithAString("/bx/stack/ttree/mode", this);
-    fModeCmd->SetGuidance("");
+    fModeCmd->SetGuidance("Set stacking mode");
+    
+    fKillOpticalPhotonsCmd = new G4UIcmdWithABool("/bx/stack/ttree/kill_optical_photons", this);
+    fKillOpticalPhotonsCmd->SetGuidance("Kill optical photons");
+    fKillOpticalPhotonsCmd->SetDefaultValue(false);
     
     BxLog(routine) << "BxStackingTTreeMessenger built" << endlog;
 }
@@ -46,5 +53,7 @@ void BxStackingTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue) 
             }
         }
         BxLog(routine) << "TTree Stacking \"Mode\" UI-cmd is \"" << newValue << "\"" << endlog;
+    } else if (cmd == fKillOpticalPhotonsCmd) {
+        fStacking->SetKillOpticalPhotons(fKillOpticalPhotonsCmd->GetNewBoolValue(newValue));
     }
 }

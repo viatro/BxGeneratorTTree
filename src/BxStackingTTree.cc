@@ -25,14 +25,15 @@
 
 using namespace std;
 
-BxStackingTTree::BxStackingTTree() :
-      fIsFirst(true)
-    , fMode()
-    , fAugerElectron()
-    , fMuPlusTrackIDs()
-    , fRadNucleiTrackTimes()
-    , fRadNucleiLifetimeThreshold(0.)
-    {
+BxStackingTTree::BxStackingTTree()
+: fIsFirst(true)
+, fMode()
+, fKillOpticalPhotons(false)
+, fAugerElectron()
+, fMuPlusTrackIDs()
+, fRadNucleiTrackTimes()
+, fRadNucleiLifetimeThreshold(0.)
+{
     G4double m_mu = G4MuonMinus::Definition()->GetPDGMass();
     G4double m_e = G4Electron::Definition()->GetPDGMass();
     fEkinMaxMuonDecay = (m_mu*m_mu + m_e*m_e)/(2.*m_mu) - m_e;
@@ -40,17 +41,17 @@ BxStackingTTree::BxStackingTTree() :
     fMessenger = new BxStackingTTreeMessenger(this);
     
     BxLog(routine) << "BxStackingTTree built" << endlog;
-    
-    fEventNumber = 0;
 }
 
 BxStackingTTree::~BxStackingTTree() {}
 
 G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* aTrack) {
+    const G4ParticleDefinition* particleDef = aTrack->GetParticleDefinition();
+    G4int pdg_code = particleDef->GetPDGEncoding();
+    
+    if (fKillOpticalPhotons && pdg_code == 50) return fKill;
+    
     if (fMode.any()) {
-        const G4ParticleDefinition* particleDef = aTrack->GetParticleDefinition();
-        G4int pdg_code = particleDef->GetPDGEncoding();
-        
         if (fMode.test(1) && particleDef->GetParticleType() == "nucleus" /*&& particleDef->GetPDGLifeTime() > fRadNucleiLifetimeThreshold*/) {
             fRadNucleiTrackTimes.insert(std::pair<G4int, G4double>(aTrack->GetTrackID(), aTrack->GetGlobalTime()));
         }
@@ -202,7 +203,6 @@ void BxStackingTTree::BxPrepareNewEvent() {
         fIsFirst = false;
     }
     fAugerElectron.Set(0,0,0.);
-    G4cout << "#####=====     " << fEventNumber << "     =====#####" << G4endl;
-    ++fEventNumber;
+    fMuPlusTrackIDs.clear();
+    fRadNucleiTrackTimes.clear();
 }
-

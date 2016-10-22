@@ -14,7 +14,9 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithAnInteger.hh"
 
-BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen) : fGenerator(gen) {
+BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen)
+: fGenerator(gen)
+{
     fDirectory = new G4UIdirectory("/bx/generator/ttree/");
     fDirectory->SetGuidance("Control of TTree event generator");
     

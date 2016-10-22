@@ -7,21 +7,21 @@
 
 #include "BxTrackInformation.hh"
 
-G4Allocator<BxTrackInformation> aTrackInformationAllocator;
+G4ThreadLocal G4Allocator<BxTrackInformation>* aTrackInformationAllocator = 0;
 
-BxTrackInformation::BxTrackInformation() :
-      fPrimaryTrackID(0)
-    //, fParentPDGEncoding(0)
-    {}
+BxTrackInformation::BxTrackInformation()
+: fPrimaryTrackID(0)
+//, fParentPDGEncoding(0)
+{}
 
-BxTrackInformation::BxTrackInformation(const G4Track* aTrack) :
-      fPrimaryTrackID ( aTrack->GetTrackID() )
-    //, fParentPDGEncoding ( aTrack->GetParticleDefinition()->GetPDGEncoding() )
-    {}
+BxTrackInformation::BxTrackInformation(const G4Track* aTrack)
+: fPrimaryTrackID ( aTrack->GetTrackID() )
+//, fParentPDGEncoding ( aTrack->GetParticleDefinition()->GetPDGEncoding() )
+{}
 
-BxTrackInformation::BxTrackInformation(const BxTrackInformation* aTrackInfo) :
-      fPrimaryTrackID ( aTrackInfo->fPrimaryTrackID )
-    //, fParentPDGEncoding ( aTrackInfo->fParentPDGEncoding )
-    {}
+BxTrackInformation::BxTrackInformation(const BxTrackInformation* aTrackInfo)
+: fPrimaryTrackID ( aTrackInfo->fPrimaryTrackID )
+//, fParentPDGEncoding ( aTrackInfo->fParentPDGEncoding )
+{}
 
-BxTrackInformation::~BxTrackInformation(){;}
+BxTrackInformation::~BxTrackInformation() {}
