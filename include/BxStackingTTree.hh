@@ -111,12 +111,18 @@ public: // with description
     G4bool GetKillOpticalPhotons() { return fKillOpticalPhotons; }
     
 private:
+    
+    G4int GetPrimaryParentID(G4int trackID);
+    
+private:
     BxGeneratorTTree*         fGenerator;
     BxStackingTTreeMessenger* fMessenger;
     G4bool                    fIsFirst;
     std::bitset<3>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
     G4bool                    fKillOpticalPhotons;
     G4double                  fEkinMaxMuonDecay;
+    
+    std::map<G4int, G4int>    fTrackParentIDs;
     
     struct MuMinusHelper {
         G4int    parentID;

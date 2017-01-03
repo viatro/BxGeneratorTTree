@@ -38,34 +38,6 @@ if ! grep -q 'BxGeneratorTTree' BxStackingActionMessenger.cc; then
 	sed -i '/newValue == \"Neutron\"/ a\    else if (newValue == "TTree")  fStacking->SetBxStackingAction(new BxStackingTTree);' BxStackingActionMessenger.cc
 fi
 
-cd ${g4bx2_dir}/include
-grep -q 'PreUserTrackingAction' BxTrackingAction.hh || sed -i '/PostUserTrackingAction/ i\    virtual void PreUserTrackingAction(const G4Track*);' BxTrackingAction.hh
-cd ${g4bx2_dir}/src
-if ! grep -q 'BxTrackInformation' BxTrackingAction.cc; then
-	sed -i '/#include "BxTrackingAction.hh"/ a\#include "BxTrackInformation.hh"' BxTrackingAction.cc
-	sed -i '/#include "G4Track.hh"/ a\#include "G4TrackVector.hh"' BxTrackingAction.cc
-	grep -q '::PreUserTrackingAction' BxTrackingAction.cc || sed -i '/::PostUserTrackingAction/ i\::PreUserTrackingAction\n' BxTrackingAction.cc
-	sed -i '/::PreUserTrackingAction/ c\void BxTrackingAction::PreUserTrackingAction(const G4Track* aTrack) {'   BxTrackingAction.cc
-	sed -i '/::PreUserTrackingAction/ a\
-    if (aTrack->GetParentID() == 0 && aTrack->GetUserInformation() == 0) {\
-        BxTrackInformation* anInfo = new BxTrackInformation(aTrack);\
-        G4Track* theTrack = (G4Track*)aTrack;\
-        theTrack->SetUserInformation(anInfo);\
-    }\n}\n' BxTrackingAction.cc
-	sed -i '/::PostUserTrackingAction/ a\
-    G4TrackVector* secondaries = fpTrackingManager->GimmeSecondaries();\
-    if (secondaries) {\
-        BxTrackInformation* info = (BxTrackInformation*)aTrack->GetUserInformation();\
-        size_t nSeco = secondaries->size();\
-        if (nSeco > 0) {\
-            for (size_t i = 0; i < nSeco; ++i) {\
-                BxTrackInformation* infoNew = new BxTrackInformation(info);\
-                (*secondaries)[i]->SetUserInformation(infoNew);\
-            }\
-        }\
-    }' BxTrackingAction.cc
-fi
-
 cd ${g4bx2_dir}/src
 grep -q 'theLENeutronCaptureModel->SetMaxEnergy(100.*TeV);' BxPhysicsList.cc || sed -i "/theLENeutronCaptureModel->SetMaxEnergy/ s//&(100.*TeV);\/\//" BxPhysicsList.cc
 
@@ -75,11 +47,9 @@ grep -q 'ttree.mac' CMakeLists.txt || sed -i '/gun.mac/ a\ttree.mac' CMakeLists.
 source please_source_me
 
 cd ${g4bx2_dir}/build
-##cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/lib64/Geant4-10.0.2/ ../. &&
-cmake -DGeant4_DIR=/storage/gpfs_data/borexino/users/viatro/opt/geant4/geant4.10.01.p03/lib64/Geant4-10.1.3/ ../. &&
+cmake -DGeant4_DIR=${BXSOFTWARE}/geant4/geant4.10.00.p02/lib64/Geant4-10.0.2/ ../. &&
 make -j 8
 
-#TEMPORARY! Until bugfix
 cd ${offline_dir}/Echidna/event
 if ! grep -q 'false && write_flag > 1' BxEvent.cc; then
 	sed -i '/write_flag > 1/ s//false \&\& &/' BxEvent.cc
