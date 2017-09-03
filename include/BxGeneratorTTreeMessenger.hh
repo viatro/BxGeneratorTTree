@@ -15,39 +15,51 @@ class G4UIcommand;
 class G4UIdirectory;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
+class G4UIcmdWithABool;
+class G4UIcmdWithoutParameter;
 
 ///Messenger for BxGeneratorTTree
 class BxGeneratorTTreeMessenger: public G4UImessenger {
 
     public:
-        ///constructor
+        /// Constructor
         BxGeneratorTTreeMessenger(BxGeneratorTTree*);
-        ///destructor
+        /// Destructor
         virtual ~BxGeneratorTTreeMessenger();
         
         void SetNewValue(G4UIcommand*, G4String);
             
     private:
-        BxGeneratorTTree*       fGenerator;
-        G4UIdirectory*       	fDirectory;
-        G4UIcmdWithAString*  	fInputFileNameCmd;
-		G4UIcmdWithAString*  	fTreeNameCmd;
-        G4UIcmdWithAnInteger*	fFirstEntryCmd;
-        G4UIcmdWithAnInteger*	fNEntriesCmd;
+        //TODO: with C++11 change to enum class
+        enum LogMode { Standard, WrongTokensNumber, WrongUnit };
         
-        G4UIdirectory*          fVarDirectoryCmd;
-        G4UIcmdWithAString*     fVarEventIdCmd;
-        G4UIcmdWithAString*     fVarEventSkipCmd;
-        G4UIcmdWithAString*     fVarParticleSkipCmd;
-        G4UIcmdWithAString*     fVarNParticlesCmd;
-        G4UIcmdWithAString*     fVarSplitCmd;
-        G4UIcmdWithAString*     fVarRotateIsoCmd;
-        G4UIcmdWithAString*     fVarPdgCmd;
-        G4UIcmdWithAString*     fVarEkinCmd;
-        G4UIcmdWithAString*     fVarMomentumCmd;
-        G4UIcmdWithAString*     fVarPositionCmd;
-        G4UIcmdWithAString*     fVarTimeCmd;
-        G4UIcmdWithAString*     fVarPolarizationCmd;
+        void LogCmd(const G4String&, const G4String&, G4int, LogMode);
+        
+        BxGeneratorTTree*        fGenerator;
+        G4UIdirectory*       	 fDirectory;
+        G4UIcmdWithAString*  	 fAddTreeCmd;
+		G4UIcmdWithAString*  	 fSetAliasCmd;
+        G4UIcmdWithAnInteger*	 fFirstEntryCmd;
+        G4UIcmdWithAnInteger*	 fNEntriesCmd;
+        G4UIcmdWithABool*	     fLogPrimariesInfoCmd;
+        G4UIcmdWithABool*	     fSavePrimariesInfoCmd;
+        
+        G4UIcmdWithAString*      fEventIdCmd;
+        G4UIcmdWithAString*      fEventSkipCmd;
+        G4UIcmdWithAString*      fEventRotateIsoCmd;
+        
+        G4UIcmdWithoutParameter* fAddSubEventCmd;
+        
+        G4UIcmdWithAString*      fSubEventRotateIsoCmd;
+        G4UIcmdWithAString*      fNParticlesCmd;
+        G4UIcmdWithAString*      fParticleSkipCmd;
+        G4UIcmdWithAString*      fParticleRotateIsoCmd;
+        G4UIcmdWithAString*      fPdgCmd;
+        G4UIcmdWithAString*      fEnergyCmd;
+        G4UIcmdWithAString*      fMomentumCmd;
+        G4UIcmdWithAString*      fPositionCmd;
+        G4UIcmdWithAString*      fTimeCmd;
+        G4UIcmdWithAString*      fPolarizationCmd;
 };
 
 #endif
