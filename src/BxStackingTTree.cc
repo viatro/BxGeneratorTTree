@@ -27,11 +27,11 @@ using namespace std;
 BxStackingTTree::BxStackingTTree()
 : fIsFirst(true)
 , fMode()
-, fKillOpticalPhotons(false)
+, fBlackList()
 , fTrackParentIDs()
+, fTrackPDGs()
+, fTrackTimes()
 , fAugerElectron()
-, fMuPlusTrackIDs()
-, fRadNucleiTrackTimes()
 , fRadNucleiLifetimeThreshold(0.)
 {
     G4double m_mu = G4MuonMinus::Definition()->GetPDGMass();
@@ -45,20 +45,43 @@ BxStackingTTree::BxStackingTTree()
 
 BxStackingTTree::~BxStackingTTree() {}
 
+G4int BxStackingTTree::GetPrimaryParentID(G4int trackID) {
+    G4int primaryID = 0;
+    G4int parentID = trackID;
+    while (parentID > 0) {
+        primaryID = parentID;
+        parentID = fTrackParentIDs.find(parentID)->second;
+        if (primaryID == parentID) return primaryID; // infinite loop protection 
+    }
+    return primaryID;
+}
+
+void BxStackingTTree::PostponeTrack(const G4Track* aTrack, G4int status) {
+    BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentPrimaryParticlesInfo()[GetPrimaryParentID(aTrack->GetTrackID()) - 1];
+    
+    particle_info.pdg_code = aTrack->GetParticleDefinition()->GetPDGEncoding();
+    particle_info.energy = aTrack->GetKineticEnergy();
+    particle_info.momentum = aTrack->GetMomentumDirection();
+    particle_info.position = aTrack->GetPosition();
+    particle_info.time = (particle_info.status == 0) ? aTrack->GetGlobalTime() : particle_info.time + aTrack->GetGlobalTime();
+    particle_info.polarization = aTrack->GetPolarization();
+    particle_info.status = status;
+    
+    fGenerator->PushFrontParticleInfo(particle_info);
+}
+
 G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* aTrack) {
     const G4ParticleDefinition* particleDef = aTrack->GetParticleDefinition();
     G4int pdg_code = particleDef->GetPDGEncoding();
     
-    if (fKillOpticalPhotons && pdg_code == 50) return fKill;
+    if (fBlackList.count(pdg_code)) return fKill;
     
     if (fMode.any()) {
         if (pdg_code != 50) {
             fTrackParentIDs.insert(std::pair<G4int, G4int>(aTrack->GetTrackID(), aTrack->GetParentID()));
+            fTrackPDGs.insert(std::pair<G4int, G4int>(aTrack->GetTrackID(), pdg_code));
+            fTrackTimes[aTrack->GetTrackID()] = aTrack->GetGlobalTime();
         }
-        if (fMode.test(1) && particleDef->GetParticleType() == "nucleus" /*&& particleDef->GetPDGLifeTime() > fRadNucleiLifetimeThreshold*/) {
-            fRadNucleiTrackTimes.insert(std::pair<G4int, G4double>(aTrack->GetTrackID(), aTrack->GetGlobalTime()));
-        }
-        if (fMode.test(2) && pdg_code == -13) fMuPlusTrackIDs.insert(aTrack->GetTrackID());
         
         const G4VProcess* creatorProcess = aTrack->GetCreatorProcess();
         if (!creatorProcess) return fUrgent; //particle from event generator
@@ -66,41 +89,13 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
         
         if (fMode.test(0)) {
             if (pdg_code == 22 && creatorProcessName == "nCapture") {
-                BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
-                if (!fGenerator->GetCurrentSplitMode()) {
-                    particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[GetPrimaryParentID(aTrack->GetTrackID()) - 1];
-                } else particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[0];
-                
-                particle_info.pdg_code = pdg_code;
-                particle_info.energy = aTrack->GetKineticEnergy();
-                particle_info.momentum = aTrack->GetMomentumDirection();
-                particle_info.position = aTrack->GetPosition();
-                particle_info.time = (particle_info.status == 0) ? aTrack->GetGlobalTime() : particle_info.time + aTrack->GetGlobalTime();
-                particle_info.polarization = aTrack->GetPolarization();
-                
-                particle_info.status = 1;
-                fGenerator->PushFrontToDeque(particle_info);
-                
+                PostponeTrack(aTrack, 1);
                 return fKill;
             }
         }
         if (fMode.test(1)) {
-            if (creatorProcessName == "RadioactiveDecay" && fRadNucleiTrackTimes[aTrack->GetParentID()] >= 0.) {
-                BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
-                if (!fGenerator->GetCurrentSplitMode()) {
-                    particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[GetPrimaryParentID(aTrack->GetTrackID()) - 1];
-                } else particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[0];
-                
-                particle_info.pdg_code = pdg_code;
-                particle_info.energy = aTrack->GetKineticEnergy();
-                particle_info.momentum = aTrack->GetMomentumDirection();
-                particle_info.position = aTrack->GetPosition();
-                particle_info.time = (particle_info.status == 0) ? aTrack->GetGlobalTime() : particle_info.time + aTrack->GetGlobalTime();
-                particle_info.polarization = aTrack->GetPolarization();
-                
-                particle_info.status = 2;
-                fGenerator->PushFrontToDeque(particle_info);
-                
+            if (creatorProcessName == "RadioactiveDecay" && fTrackTimes[aTrack->GetParentID()] >= 0.) {
+                PostponeTrack(aTrack, 2);
                 return fKill;
             }
         }
@@ -126,21 +121,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                     } else {
                         if (fAugerElectron.parentID == aTrack->GetParentID()) {
                             if (fAugerElectron.time != trackTime && fAugerElectron.trackID != aTrack->GetTrackID()) {
-                                BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
-                                if (!fGenerator->GetCurrentSplitMode()) {
-                                    particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[GetPrimaryParentID(aTrack->GetTrackID()) - 1];
-                                } else particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[0];
-                                
-                                particle_info.pdg_code = pdg_code;
-                                particle_info.energy = aTrack->GetKineticEnergy();
-                                particle_info.momentum = aTrack->GetMomentumDirection();
-                                particle_info.position = aTrack->GetPosition();
-                                particle_info.time = (particle_info.status == 0) ? trackTime : particle_info.time + trackTime;
-                                particle_info.polarization = aTrack->GetPolarization();
-                                
-                                particle_info.status = 3;
-                                fGenerator->PushFrontToDeque(particle_info);
-                                
+                                PostponeTrack(aTrack, 3);
                                 return fKill;
                             }
                         }
@@ -151,41 +132,19 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                     //WARNING! There is a bug in Geant4 versions lower than 10.0.p04 and 10.1.p01: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1695
                     //         Gammas, protons, neutrons, deutrons, tritons, alphas and residual nuclei with delay time ~ 0.1-10 mus can be produced
                     //         but because of bug they have the same time as Auger electrons
-                    BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
-                    if (!fGenerator->GetCurrentSplitMode()) {
-                        particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[GetPrimaryParentID(aTrack->GetTrackID()) - 1];
-                    } else particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[0];
-                    
-                    particle_info.pdg_code = pdg_code;
-                    particle_info.energy = aTrack->GetKineticEnergy();
-                    particle_info.momentum = aTrack->GetMomentumDirection();
-                    particle_info.position = aTrack->GetPosition();
-                    particle_info.time = (particle_info.status == 0) ? aTrack->GetGlobalTime() : particle_info.time + aTrack->GetGlobalTime();
-                    particle_info.polarization = aTrack->GetPolarization();
-                    
-                    particle_info.status = 3;
-                    fGenerator->PushFrontToDeque(particle_info);
-                    
+                    PostponeTrack(aTrack, 3);
                     return fKill;
                 }
             }  else if (pdg_code == -11 && (creatorProcessName == "Decay" || creatorProcessName == "DecayWithSpin")
-                && fMuPlusTrackIDs.count(aTrack->GetParentID()) && aTrack->GetKineticEnergy() <= fEkinMaxMuonDecay) {
+                && (fTrackPDGs.count(aTrack->GetParentID()) && fTrackPDGs[aTrack->GetParentID()] == -13) && aTrack->GetKineticEnergy() <= fEkinMaxMuonDecay) {
                 //There is only free muon decay for mu+, no capture
-                BxGeneratorTTree::ParticleInfo particle_info = fGenerator->GetCurrentParticleInfo();
-                if (!fGenerator->GetCurrentSplitMode()) {
-                    particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[GetPrimaryParentID(aTrack->GetTrackID()) - 1];
-                } else particle_info.p_index = fGenerator->GetCurrentPrimaryIndexes()[0];
-                
-                particle_info.pdg_code = pdg_code;
-                particle_info.energy = aTrack->GetKineticEnergy();
-                particle_info.momentum = aTrack->GetMomentumDirection();
-                particle_info.position = aTrack->GetPosition();
-                particle_info.time = (particle_info.status == 0) ? aTrack->GetGlobalTime() : particle_info.time + aTrack->GetGlobalTime();
-                particle_info.polarization = aTrack->GetPolarization();
-                
-                particle_info.status = 3;
-                fGenerator->PushFrontToDeque(particle_info);
-                
+                PostponeTrack(aTrack, -3);
+                return fKill;
+            }
+        }
+        if (fMode.test(3)) {
+            if (creatorProcessName == "Decay" || creatorProcessName == "DecayWithSpin") {
+                PostponeTrack(aTrack, 4);
                 return fKill;
             }
         }
@@ -206,18 +165,7 @@ void BxStackingTTree::BxPrepareNewEvent() {
         fIsFirst = false;
     }
     fTrackParentIDs.clear();
+    fTrackPDGs.clear();
+    fTrackTimes.clear();
     fAugerElectron.Set(0,0,0.);
-    fMuPlusTrackIDs.clear();
-    fRadNucleiTrackTimes.clear();
-}
-
-G4int BxStackingTTree::GetPrimaryParentID(G4int trackID) {
-    G4int primaryID = 0;
-    G4int parentID = trackID;
-    while (parentID > 0) {
-        primaryID = parentID;
-        parentID = fTrackParentIDs.find(parentID)->second;
-        if (primaryID == parentID) return primaryID; // infinite loop protection 
-    }
-    return primaryID;
 }

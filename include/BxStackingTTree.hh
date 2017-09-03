@@ -107,22 +107,23 @@ public: // with description
     void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
     void SetMode(G4bool val) { val ? fMode.set() : fMode.reset(); }
     
-    void   SetKillOpticalPhotons(G4bool val) { fKillOpticalPhotons = val; }
-    G4bool GetKillOpticalPhotons() { return fKillOpticalPhotons; }
+    void AddParticleToBlackList(G4int pdg_code) { fBlackList.insert(pdg_code); }
     
 private:
-    
     G4int GetPrimaryParentID(G4int trackID);
+    void PostponeTrack(const G4Track* aTrack, G4int status);
     
 private:
     BxGeneratorTTree*         fGenerator;
     BxStackingTTreeMessenger* fMessenger;
     G4bool                    fIsFirst;
-    std::bitset<3>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay
-    G4bool                    fKillOpticalPhotons;
+    std::bitset<4>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay, [3] - decay
+    std::set<G4int>           fBlackList;
     G4double                  fEkinMaxMuonDecay;
     
-    std::map<G4int, G4int>    fTrackParentIDs;
+    std::map<G4int, G4int>    fTrackParentIDs; // <TrackID, ParentID>
+    std::map<G4int, G4int>    fTrackPDGs;      // <TrackID, PDGEncoding>
+    std::map<G4int, G4double> fTrackTimes;     // <TrackID, GlobalTime>
     
     struct MuMinusHelper {
         G4int    parentID;
@@ -135,11 +136,8 @@ private:
             time     = _time    ;
         }
     };
-    MuMinusHelper             fAugerElectron;
+    MuMinusHelper fAugerElectron;
     
-    std::set<G4int>           fMuPlusTrackIDs;
-    
-    std::map<G4int, G4double> fRadNucleiTrackTimes; // <trackID, GlobalTime>
     G4double fRadNucleiLifetimeThreshold;
 };
 
