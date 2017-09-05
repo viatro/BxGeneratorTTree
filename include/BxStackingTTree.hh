@@ -107,7 +107,11 @@ public: // with description
     void SetMode(size_t pos, G4bool val) { fMode.set(pos,val); }
     void SetMode(G4bool val) { val ? fMode.set() : fMode.reset(); }
     
-    void AddParticleToBlackList(G4int pdg_code) { fBlackList.insert(pdg_code); }
+    void SetKillMode(size_t pos, G4bool val) { fKillMode.set(pos,val); }
+    void SetKillMode(G4bool val) { val ? fKillMode.set() : fKillMode.reset(); }
+    
+    void AddParticleToBlackList(G4int pdg_code) { fBlackListPdg.insert(pdg_code); }
+    void AddProcessToBlackList(const G4String& processName) { fBlackListProcess.insert(processName); }
     
 private:
     G4int GetPrimaryParentID(G4int trackID);
@@ -118,7 +122,9 @@ private:
     BxStackingTTreeMessenger* fMessenger;
     G4bool                    fIsFirst;
     std::bitset<4>            fMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay, [3] - decay
-    std::set<G4int>           fBlackList;
+    std::bitset<4>            fKillMode; //[0] - gamma from neutron capture, [1] - radioactive decay, [2] - muon decay, [3] - decay
+    std::set<G4int>           fBlackListPdg;
+    std::set<G4String>        fBlackListProcess;
     G4double                  fEkinMaxMuonDecay;
     
     std::map<G4int, G4int>    fTrackParentIDs; // <TrackID, ParentID>

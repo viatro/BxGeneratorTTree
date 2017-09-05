@@ -30,7 +30,8 @@ class BxStackingTTreeMessenger: public G4UImessenger {
         BxStackingTTree*              fStacking;
         G4UIdirectory*       	      fDirectory;
         G4UIcmdWithAString*  	      fModeCmd;
-        G4UIcmdWithAString*           fBlackListCmd;
+        G4UIcmdWithAString*           fBlackListParticleCmd;
+        G4UIcmdWithAString*           fBlackListProcessCmd;
 };
 
 #endif

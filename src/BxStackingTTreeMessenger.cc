@@ -28,8 +28,11 @@ BxStackingTTreeMessenger::BxStackingTTreeMessenger(BxStackingTTree* stack)
     fModeCmd = new G4UIcmdWithAString("/bx/stack/ttree/mode", this);
     fModeCmd->SetGuidance("Set stacking mode");
     
-    fBlackListCmd = new G4UIcmdWithAString("/bx/stack/ttree/black_list", this);
-    fBlackListCmd->SetGuidance("Kill particles by their pdg codes or names");
+    fBlackListParticleCmd = new G4UIcmdWithAString("/bx/stack/ttree/black_list", this);
+    fBlackListParticleCmd->SetGuidance("Kill particles by their pdg codes or names");
+    
+    fBlackListProcessCmd = new G4UIcmdWithAString("/bx/stack/ttree/process_black_list", this);
+    fBlackListProcessCmd->SetGuidance("Kill particles by their creator process name");
     
     BxLog(routine) << "BxStackingTTreeMessenger built" << endlog;
 }
@@ -47,17 +50,25 @@ void BxStackingTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue) 
     if (cmd == fModeCmd) {
         BxLog(routine) << cmdName << "  command is set to  \"" << newValue << "\"" << endlog;
         if (tokens[0] == "all") fStacking->SetMode(true);
-        else if (tokens[0] == "none" || tokens[0] == "") fStacking->SetMode(false);
+        else if (tokens[0] == "!all") fStacking->SetKillMode(true);
+        else if (tokens[0] == "none" || tokens[0] == "") {
+            fStacking->SetMode(false);
+            fStacking->SetKillMode(false);
+        }
         else {
             for (size_t i = 0; i < tokens.size(); ++i) {
                 if (tokens[i] == "neutron" || tokens[i] == "1") fStacking->SetMode(0, true);
+                if (tokens[i] == "!neutron" || tokens[i] == "!1") fStacking->SetKillMode(0, true);
                 else if (tokens[i] == "ra_decay" || tokens[i] == "2") fStacking->SetMode(1, true);
+                else if (tokens[i] == "!ra_decay" || tokens[i] == "!2") fStacking->SetKillMode(1, true);
                 else if (tokens[i] == "muon" || tokens[i] == "3") fStacking->SetMode(2, true);
+                else if (tokens[i] == "!muon" || tokens[i] == "!3") fStacking->SetKillMode(2, true);
                 else if (tokens[i] == "decay" || tokens[i] == "4") fStacking->SetMode(3, true);
+                else if (tokens[i] == "!decay" || tokens[i] == "!4") fStacking->SetKillMode(3, true);
                 else BxLog(warning) << cmdName << ":  unknown parameter \"" << tokens[i] << "\" ! Skipping." << endlog;
             }
         }
-    } else if (cmd == fBlackListCmd) {
+    } else if (cmd == fBlackListParticleCmd) {
         BxLog(routine) << cmdName << "  command is set to  \"" << newValue << "\"" << endlog;
         for (size_t i = 0; i < tokens.size(); ++i) {
             char* end;
@@ -79,6 +90,11 @@ void BxStackingTTreeMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue) 
                 }
                 fStacking->AddParticleToBlackList(particle->GetPDGEncoding());
             }
+        }
+    }  else if (cmd == fBlackListProcessCmd) {
+        BxLog(routine) << cmdName << "  command is set to  \"" << newValue << "\"" << endlog;
+        for (size_t i = 0; i < tokens.size(); ++i) {
+            fStacking->AddProcessToBlackList(newValue);
         }
     }
 }

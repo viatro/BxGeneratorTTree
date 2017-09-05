@@ -27,7 +27,9 @@ using namespace std;
 BxStackingTTree::BxStackingTTree()
 : fIsFirst(true)
 , fMode()
-, fBlackList()
+, fKillMode()
+, fBlackListPdg()
+, fBlackListProcess()
 , fTrackParentIDs()
 , fTrackPDGs()
 , fTrackTimes()
@@ -74,32 +76,36 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
     const G4ParticleDefinition* particleDef = aTrack->GetParticleDefinition();
     G4int pdg_code = particleDef->GetPDGEncoding();
     
-    if (fBlackList.count(pdg_code)) return fKill;
+    if (fBlackListPdg.count(pdg_code)) return fKill;
     
-    if (fMode.any()) {
+    const G4VProcess* creatorProcess = aTrack->GetCreatorProcess();
+    G4String creatorProcessName = creatorProcess ? creatorProcess->GetProcessName() : "";
+    
+    if (fBlackListProcess.count(creatorProcessName)) return fKill;
+    
+    if (fMode.any() || fKillMode.any()) {
         if (pdg_code != 50) {
             fTrackParentIDs.insert(std::pair<G4int, G4int>(aTrack->GetTrackID(), aTrack->GetParentID()));
             fTrackPDGs.insert(std::pair<G4int, G4int>(aTrack->GetTrackID(), pdg_code));
             fTrackTimes[aTrack->GetTrackID()] = aTrack->GetGlobalTime();
         }
         
-        const G4VProcess* creatorProcess = aTrack->GetCreatorProcess();
         if (!creatorProcess) return fUrgent; //particle from event generator
-        G4String creatorProcessName = creatorProcess->GetProcessName();
         
-        if (fMode.test(0)) {
+        
+        if (fMode.test(0) || fKillMode.test(0)) {
             if (pdg_code == 22 && creatorProcessName == "nCapture") {
-                PostponeTrack(aTrack, 1);
+                if (!fKillMode.test(0)) PostponeTrack(aTrack, 1);
                 return fKill;
             }
         }
-        if (fMode.test(1)) {
+        if (fMode.test(1) || fKillMode.test(1)) {
             if (creatorProcessName == "RadioactiveDecay" && fTrackTimes[aTrack->GetParentID()] >= 0.) {
-                PostponeTrack(aTrack, 2);
+                if (!fKillMode.test(1)) PostponeTrack(aTrack, 2);
                 return fKill;
             }
         }
-        if (fMode.test(2)) {
+        if (fMode.test(2) || fKillMode.test(2)) {
             if (creatorProcessName == "muMinusCaptureAtRest") {
                 //mean lifetime of muonic carbon is 2.026 mus, of muonic hydrogen is almost equal to free muon lifetime
                 if (pdg_code == 11) {
@@ -121,7 +127,7 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                     } else {
                         if (fAugerElectron.parentID == aTrack->GetParentID()) {
                             if (fAugerElectron.time != trackTime && fAugerElectron.trackID != aTrack->GetTrackID()) {
-                                PostponeTrack(aTrack, 3);
+                                if (!fKillMode.test(2)) PostponeTrack(aTrack, 3);
                                 return fKill;
                             }
                         }
@@ -132,19 +138,19 @@ G4ClassificationOfNewTrack BxStackingTTree::BxClassifyNewTrack (const G4Track* a
                     //WARNING! There is a bug in Geant4 versions lower than 10.0.p04 and 10.1.p01: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1695
                     //         Gammas, protons, neutrons, deutrons, tritons, alphas and residual nuclei with delay time ~ 0.1-10 mus can be produced
                     //         but because of bug they have the same time as Auger electrons
-                    PostponeTrack(aTrack, 3);
+                    if (!fKillMode.test(2)) PostponeTrack(aTrack, 3);
                     return fKill;
                 }
             }  else if (pdg_code == -11 && (creatorProcessName == "Decay" || creatorProcessName == "DecayWithSpin")
                 && (fTrackPDGs.count(aTrack->GetParentID()) && fTrackPDGs[aTrack->GetParentID()] == -13) && aTrack->GetKineticEnergy() <= fEkinMaxMuonDecay) {
                 //There is only free muon decay for mu+, no capture
-                PostponeTrack(aTrack, -3);
+                if (!fKillMode.test(2)) PostponeTrack(aTrack, -3);
                 return fKill;
             }
         }
-        if (fMode.test(3)) {
+        if (fMode.test(3) || fKillMode.test(3)) {
             if (creatorProcessName == "Decay" || creatorProcessName == "DecayWithSpin") {
-                PostponeTrack(aTrack, 4);
+                if (!fKillMode.test(3)) PostponeTrack(aTrack, 4);
                 return fKill;
             }
         }
