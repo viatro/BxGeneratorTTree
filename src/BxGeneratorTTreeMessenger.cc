@@ -93,7 +93,7 @@ BxGeneratorTTreeMessenger::BxGeneratorTTreeMessenger(BxGeneratorTTree* gen)
     fPositionCmd->SetGuidance("Particle coordinates");
     fPositionCmd->SetGuidance("Default:    0 0 0 m");
     
-    fTimeCmd = new G4UIcmdWithAString("/bx/generator/ttree/var/time", this);
+    fTimeCmd = new G4UIcmdWithAString("/bx/generator/ttree/time", this);
     fTimeCmd->SetGuidance("Particle time");
     fTimeCmd->SetGuidance("Default:    0 ns");
     
